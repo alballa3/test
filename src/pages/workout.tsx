@@ -109,7 +109,7 @@ function WorkoutForm() {
         const client = await api()
         let response =await client.post("/template", state)
         console.log(response)
-        // nav("/")
+        nav("/")
         // console.log("Saving workout:", state);
     };
 

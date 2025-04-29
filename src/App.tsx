@@ -8,6 +8,7 @@ import RegisterPage from "./pages/register";
 import { useEffect } from "react";
 import { get_token } from "./capacitor/auth";
 import { GuestLayout } from "./components/layout/layout";
+import GenerateWorkoutPage from "./pages/page";
 
 
 
@@ -29,6 +30,7 @@ function App() {
   return (
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/workout/ai" element={<GenerateWorkoutPage/>}/>
         <Route path="/auth" element={<GuestLayout/>}>
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />

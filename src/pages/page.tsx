@@ -191,7 +191,9 @@ export default function GenerateWorkoutPage() {
         </div>
       </main>
 
-      <MobileNavigation />
+      <MobileNavigation activeTab={""} setActiveTab={function (): void {
+        throw new Error("Function not implemented.")
+      } } />
     </div>
   )
 }
