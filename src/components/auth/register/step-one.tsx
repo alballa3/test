@@ -81,7 +81,7 @@ export default function StepOne({ onNext }: StepOneProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          Welcome to FitTrack Pro
+          Welcome to GymRat Tracker
         </motion.h1>
 
         <motion.p

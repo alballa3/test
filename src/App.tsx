@@ -29,7 +29,7 @@ function App() {
   },[])
   return (
       <Routes>
-        <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<HomePage />} />
         <Route path="/workout/ai" element={<GenerateWorkoutPage/>}/>
         <Route path="/auth" element={<GuestLayout/>}>
           <Route path="login" element={<LoginPage />} />

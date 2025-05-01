@@ -22,7 +22,8 @@ export type Exercise = {
   sets: Set[]
   muscleGroup?: MuscleGroup
   equipment?: Equipment
-  difficulty?:number
+  difficulty?: number
+  
   restTime: number
   isExpanded?: boolean
   previousData?: PreviousData
