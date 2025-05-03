@@ -80,7 +80,7 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
   }
 
   // Get unique muscle groups from exercises
-  const muscleGroups = Array.from(new Set(workout.exercises.map((ex) => ex.muscleGroup)))
+  const muscleGroups = Array.from(new Set(workout?.exercises?.map((ex) => ex.muscleGroup) || []))
 
   const container = {
     hidden: { opacity: 0 },

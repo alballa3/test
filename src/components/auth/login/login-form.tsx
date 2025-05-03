@@ -86,12 +86,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // REMOVE LATER PLEASE
-    if(email=="admin@gmail.com"){
-      await create_token("AM JUST TESTING")
-      router("/")
-      return;
-    }
+  
     try {
       setIsLoading(true)
       const client = await api()

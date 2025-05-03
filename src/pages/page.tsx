@@ -56,29 +56,23 @@ export default function GenerateWorkoutPage() {
 
       try {
         // // Simulate AI processing with progress updates
-        // await new Promise((resolve) => setTimeout(resolve, 800))
-        // setGenerationProgress(15)
-        // setGenerationStep("Selecting optimal exercises...")
+        setGenerationProgress(15)
+        setGenerationStep("Selecting optimal exercises...")
 
-        // await new Promise((resolve) => setTimeout(resolve, 1000))
-        // setGenerationProgress(35)
-        // setGenerationStep("Calculating sets and reps...")
+        setGenerationProgress(35)
+        setGenerationStep("Calculating sets and reps...")
 
-        // await new Promise((resolve) => setTimeout(resolve, 800))
-        // setGenerationProgress(60)
-        // setGenerationStep("Optimizing workout structure...")
+        setGenerationProgress(60)
+        setGenerationStep("Optimizing workout structure...")
 
-        // await new Promise((resolve) => setTimeout(resolve, 1200))
-        // setGenerationProgress(85)
-        // setGenerationStep("Finalizing your personalized plan...")
+        setGenerationProgress(85)
 
-        // await new Promise((resolve) => setTimeout(resolve, 600))
-        // setGenerationProgress(100)
-        // setGenerationStep("Workout generated successfully!")
+        setGenerationProgress(100)
+        setGenerationStep("Workout generated successfully!")
 
         // Generate workout based on inputs
         const workout =await generateWorkoutBasedOnInputs(description,  selectedEquipment, selectedMuscleGroups)
-        setGeneratedWorkout(workout)
+        setGeneratedWorkout(workout as unknown as GeneratedWorkout)
 
         // Wait for progress bar to complete
 
