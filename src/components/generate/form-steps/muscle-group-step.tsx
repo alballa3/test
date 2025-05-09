@@ -68,15 +68,15 @@ export function MuscleGroupStep({
   }
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
+    <motion.div 
+      variants={container} 
+      initial="hidden" 
+      animate="show" 
       className="space-y-8 w-full max-w-3xl mx-auto"
     >
       <motion.div variants={item} className="space-y-6">
         <div className="flex items-center gap-3">
-          <motion.div
+          <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 15, delay: 0.2 }}
@@ -109,7 +109,7 @@ export function MuscleGroupStep({
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               {selectedMuscleGroups.includes(muscle) && (
-                <motion.div
+                <motion.div 
                   className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/10 to-violet-500/10"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -119,8 +119,8 @@ export function MuscleGroupStep({
               <div
                 className={cn(
                   "min-w-8 h-8 rounded-xl border flex items-center justify-center transition-all duration-300",
-                  selectedMuscleGroups.includes(muscle)
-                    ? "border-fuchsia-400 bg-gradient-to-br from-fuchsia-500 to-violet-500"
+                  selectedMuscleGroups.includes(muscle) 
+                    ? "border-fuchsia-400 bg-gradient-to-br from-fuchsia-500 to-violet-500" 
                     : "border-zinc-600 bg-zinc-800/50",
                 )}
               >
@@ -148,7 +148,7 @@ export function MuscleGroupStep({
 
         <AnimatePresence>
           {selectedMuscleGroups.length === 0 && (
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -166,7 +166,7 @@ export function MuscleGroupStep({
 
         <AnimatePresence>
           {selectedMuscleGroups.length > 0 && (
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -194,19 +194,20 @@ export function MuscleGroupStep({
             <ChevronLeft className="h-4 w-4" />
           </motion.span>
           <span>Back</span>
-          <motion.div
+          <motion.div 
             className="absolute inset-0 bg-gradient-to-r from-zinc-700/0 via-zinc-700/5 to-zinc-700/0"
             initial={{ x: "100%" }}
             whileHover={{ x: "-100%" }}
             transition={{ duration: 1, ease: "easeInOut" }}
           />
         </Button>
-
+        
         <Button
           onClick={onGenerate}
           disabled={isGenerating || selectedMuscleGroups.length === 0}
-          className={`relative overflow-hidden bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 h-12 text-base font-medium rounded-xl shadow-lg transition-all duration-300 group flex items-center gap-3 px-6 ${isGenerating || selectedMuscleGroups.length === 0 ? "opacity-50 cursor-not-allowed" : "shadow-violet-900/20"
-            }`}
+          className={`relative overflow-hidden bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 h-12 text-base font-medium rounded-xl shadow-lg transition-all duration-300 group flex items-center gap-3 px-6 ${
+            isGenerating || selectedMuscleGroups.length === 0 ? "opacity-50 cursor-not-allowed" : "shadow-violet-900/20"
+          }`}
         >
           <motion.div
             animate={isGenerating ? { rotate: 360 } : { rotate: 0 }}
@@ -222,12 +223,12 @@ export function MuscleGroupStep({
               />
             )}
           </motion.div>
-
+          
           <span className="group-hover:tracking-wide transition-all duration-300">
             {isGenerating ? "Creating Workout..." : "Generate My Workout"}
           </span>
-
-          <motion.div
+          
+          <motion.div 
             className="absolute inset-0 bg-gradient-to-r from-violet-600/0 via-white/10 to-blue-600/0"
             initial={{ x: "100%" }}
             whileHover={{ x: "-100%" }}
