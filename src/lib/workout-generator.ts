@@ -1,4 +1,5 @@
 import { api } from "@/api"
+import { storeTemplate } from "@/capacitor/store";
 import type { Equipment, MuscleGroup, Set } from "@/types/workout"
 type exercises = {
   id: number;
@@ -40,7 +41,7 @@ export const generateWorkoutBasedOnInputs = async (
   let total_set = workout_plan.exercises.map((exercise) => {
     let sets_number = exercise.sets as number
     let sets = []
-    exercise["isExpanded"] = false;
+    exercise["isExpanded"] = true;
     for (let i = 0; i < sets_number; i++) {
       sets.push({
         id: i,
@@ -52,6 +53,7 @@ export const generateWorkoutBasedOnInputs = async (
     return exercise
   })
   let data = {
+    id: crypto.randomUUID(),
     name: workout_plan.name,
     description: workout_plan.description,
     exercises: total_set,
@@ -60,6 +62,7 @@ export const generateWorkoutBasedOnInputs = async (
     caloriesBurned: workout_plan.caloriesBurned,
     is_template: true,
   }
+  storeTemplate(data)
   console.log(data)
   return data
 }

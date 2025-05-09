@@ -85,6 +85,10 @@ export function MobileExerciseView({
             exercise={filteredExercises[currentExerciseIndex]}
             index={currentExerciseIndex}
             isFirst={currentExerciseIndex === 0}
+            onShowDetails={() => { 
+              console.log("Show details");
+            }}
+
             isLast={currentExerciseIndex === filteredExercises.length - 1}
             onMoveUp={() => {}}
             onMoveDown={() => {}}
@@ -96,7 +100,6 @@ export function MobileExerciseView({
             onRemoveSet={() => {}}
             onUpdateSet={() => {}}
             onNameChange={() => {}}
-            onShowDetails={() => {}}
             onToggleSetCompletion={() => {}}
           />
         </motion.div>

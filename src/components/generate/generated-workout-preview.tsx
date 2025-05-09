@@ -5,13 +5,15 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Brain, Edit, RotateCcw, Save, Play, Dumbbell, Filter } from "lucide-react"
+import { Brain, Edit, RotateCcw, Save, Dumbbell, Filter } from "lucide-react"
 import type { GeneratedWorkout, MuscleGroup } from "@/types/workout"
 import { WorkoutSummaryCard } from "./workout-summary-card"
 import { ExerciseFilters } from "./exercise-filters"
 import { MobileExerciseView } from "./mobile-exercise-view"
 import { ExerciseCard } from "../workout/index/exercise-card"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { api } from "@/api"
+import { useNavigate } from "react-router"
 
 interface GeneratedWorkoutPreviewProps {
   workout: GeneratedWorkout
@@ -24,9 +26,20 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
   const [animatedItems, setAnimatedItems] = useState<number[]>([])
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [filteredExercises, setFilteredExercises] = useState(workout.exercises)
+  let nav=useNavigate()
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
-  
+  const handle = async() => {
+    const client = await api()
+    await client.post("/template", {
+      name: workout.name,
+      description: workout.description,
+      exercises: workout.exercises,
+      timer: parseInt(workout.duration as unknown as string) * 60
+    })
+    nav("/")
+  }
+
   // Check if screen is mobile
   const isMobile = useMediaQuery("(max-width: 768px)")
   
@@ -233,16 +246,32 @@ export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: Gener
             </motion.div>
           </div>
 
-          <motion.div variants={item} className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6 sm:mt-8">
-            <Button className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-none h-10 sm:h-12 rounded-lg sm:rounded-xl shadow-lg shadow-emerald-900/20 transition-all duration-300 text-xs sm:text-sm">
-              <Save className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+          <motion.div 
+            variants={item} 
+            className="flex flex-col sm:flex-row gap-3 mt-8"
+          >
+            <Button 
+              className="
+                flex-1 relative group overflow-hidden
+                bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500
+                hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600
+                border-none h-12 sm:h-14 
+                rounded-xl sm:rounded-2xl
+                shadow-lg shadow-emerald-900/30
+                transition-all duration-500 ease-out
+                text-sm sm:text-base font-medium
+                before:absolute before:inset-0
+                before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent
+                before:translate-x-[-200%] before:transition-transform before:duration-700
+                hover:before:translate-x-[200%]
+              "
+              onClick={handle}
+            >
+              <Save className="mr-2.5 h-5 w-5 sm:h-6 sm:w-6 animate-pulse group-hover:animate-none" />
               Save as Template
             </Button>
-            <Button className="flex-1 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 border-none h-10 sm:h-12 rounded-lg sm:rounded-xl shadow-lg shadow-violet-900/20 transition-all duration-300 text-xs sm:text-sm mt-2 sm:mt-0">
-              <Play className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              Start Workout
-            </Button>
           </motion.div>
+
         </motion.div>
       </Card>
     </motion.div>

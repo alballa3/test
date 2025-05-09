@@ -36,7 +36,7 @@ export type WorkoutFormState = {
   saveAsTemplate: boolean
   timer:Number
   exercises: Exercise[]
-  createdAt: string
+  created_at: string
 }
 export type GeneratedWorkout = {
   name: string

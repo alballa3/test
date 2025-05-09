@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import { get_token } from "./capacitor/auth";
 import { GuestLayout } from "./components/layout/layout";
 import GenerateWorkoutPage from "./pages/page";
+import ProfilePage from "./pages/profile";
+import AllWorkoutsPage from "./pages/workouts";
 
 
 
@@ -35,7 +37,9 @@ function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
         </Route>
-        <Route path="/workout/:id" element={<Workout />} />
+      <Route path="/workout/:id" element={<Workout />} />
+      <Route path="/workouts" element={<AllWorkoutsPage />} />
+      <Route path="/profile" element={<ProfilePage/>}/>
         <Route path="/create" element={<CreateWorkoutPage />} />
       </Routes>
   );
