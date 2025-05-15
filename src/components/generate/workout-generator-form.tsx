@@ -99,16 +99,15 @@ export function WorkoutGeneratorForm({
           {/* Progress indicator */}
           <StepIndicator currentStep={formStep} totalSteps={3} />
 
-          {/* Step 1: Description */}
-          {formStep === 1 && (
-            <DescriptionStep
-              description={description}
-              setDescription={setDescription}
-              duration={duration}
-              setDuration={setDuration}
-              onNext={nextStep}
-            />
-          )}
+            {formStep === 1 && (
+              <DescriptionStep
+                description={description}
+                setDescription={setDescription}
+                duration={duration}
+                setDuration={setDuration}
+                onNext={nextStep}
+              />
+            )}
 
           {/* Step 2: Equipment */}
           {formStep === 2 && (
@@ -131,7 +130,8 @@ export function WorkoutGeneratorForm({
               onPrev={prevStep}
               isGenerating={isGenerating}
             />
-          )}
+            )}
+            
         </div>
       )}
     </Card>

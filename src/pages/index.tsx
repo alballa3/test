@@ -5,7 +5,6 @@ import { AppHeader } from "@/components/layout/app-header"
 import { WorkoutTemplatesGrid } from "@/components/workout/index/workout-templates-grid"
 import { NewWorkoutCard } from "@/components/workout/index/new-workout-card"
 import { MobileNavigation } from "@/components/layout/mobile-navigation"
-import { LastWorkoutSection } from "@/components/workout/index/last-workout-section"
 import { WorkoutFormState } from "@/types/workout"
 import { api } from "@/api"
 
@@ -14,15 +13,16 @@ export default function HomePage() {
     // const [lastWorkout, setLastWorkout] = useState<WorkoutFormState | null>(null)
     useEffect(() => {
         const handle = async () => {
-      
+
             const client = await api()
-         //    const workouts = await client.get(`/workouts/1`)
+            //    const workouts = await client.get(`/workouts/1`)
             const templates = await client.get("/template")
             setTemplates(templates.data)
-        //    try {
-        //    } catch (error) {
-            
-        //    }
+
+            //    try {
+            //    } catch (error) {
+
+            //    }
             // setLastWorkout(workouts.data) // Assuming the last workout is the first elemen
             // setTemplates(templates.data)
             // const validWorkouts = workouts.filter(w => w !== null);
@@ -30,16 +30,6 @@ export default function HomePage() {
         }
         handle()
     }, [])
-    // For demo purposes, you can toggle this to show/hide the last workout
-    const lastWorkout = {
-        title: "Upper Body Strength",
-        date: "Today, 9:30 AM",
-        duration: "45 min",
-        exerciseCount: 8,
-        volume: "4,500 kg",
-    }
-    // For demo purposes, you can set this to an empty array to show the empty state
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 text-white">
             {/* Background particles/effects */}
@@ -74,7 +64,7 @@ export default function HomePage() {
                     ) : (
                         <>
                             {/* Last Workout Section */}
-                            <LastWorkoutSection lastWorkout={lastWorkout} />
+                            {/* <LastWorkoutSection lastWorkout={lastWorkout} /> */}
 
                             {/* Workout Templates Section */}
                             <WorkoutTemplatesGrid templates={templates} templateColors={templateColors} />
@@ -89,7 +79,7 @@ export default function HomePage() {
             </main>
 
             {/* Mobile Navigation */}
-            <MobileNavigation activeTab={'home'}  />
+            <MobileNavigation activeTab={'home'} />
         </div>
     )
 }

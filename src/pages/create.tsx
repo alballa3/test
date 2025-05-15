@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Exercise } from "@/types/exercise"
 import { useNavigate } from "react-router"
 import { api } from "@/api"
-import { storeTemplate } from "@/capacitor/store"
 import { toast } from "sonner"
 
 function WorkoutForm() {
@@ -33,8 +32,9 @@ function WorkoutForm() {
 
   const handleSave = async () => {
     // Store It offline
-    storeTemplate(state)
+    // storeTemplate(state)
 
+    console.log("Saving workout:", state)
     try {
       // Store It For With our api
       let client = await api()

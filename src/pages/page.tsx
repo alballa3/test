@@ -185,8 +185,6 @@ export default function GenerateWorkoutPage() {
           </div>
         </div>
       </main>
-
-      
     </div>
   )
 }

@@ -51,7 +51,7 @@ export default function AllWorkoutsPage() {
 
   // Load workout data
   useEffect(() => {
-    const timer = setTimeout(async() => {
+    const handle = async () => {
       const client = await api()
       const res = await client.get("/workouts")
       let workoutData = res.data
@@ -75,9 +75,8 @@ export default function AllWorkoutsPage() {
       setTotalVolume(volume || 0)
 
       setIsLoading(false)
-    }, 800)
-
-    return () => clearTimeout(timer)
+    }
+    handle()
   }, [])
 
   // Count active filters
