@@ -74,7 +74,7 @@ export function WorkoutTemplateCard({
                             <Clock className="h-3.5 w-3.5 text-blue-300" />
                             <span className="text-white">{Math.floor((template.timer as number || 0) / 60)} min</span>
                         </div>
-                    
+
                     </div>
 
                     {/* Progress Bar */}

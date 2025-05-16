@@ -69,7 +69,7 @@ export function WorkoutTemplatesGrid({ templates, templateColors }: WorkoutTempl
                     title="No Workout Templates"
                     description="Create your first workout template to get started"
                     buttonText="Create Template"
-                    buttonLink="/create-template"
+                    buttonLink="/create"
                 />
             )}
 

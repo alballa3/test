@@ -19,14 +19,7 @@ export default function HomePage() {
             const templates = await client.get("/template")
             setTemplates(templates.data)
 
-            //    try {
-            //    } catch (error) {
-
-            //    }
-            // setLastWorkout(workouts.data) // Assuming the last workout is the first elemen
-            // setTemplates(templates.data)
-            // const validWorkouts = workouts.filter(w => w !== null);
-            // setTemplates(validWorkouts);
+        
         }
         handle()
     }, [])

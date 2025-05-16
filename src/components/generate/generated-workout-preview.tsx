@@ -24,6 +24,7 @@ interface GeneratedWorkoutPreviewProps {
 export function GeneratedWorkoutPreview({ workout, onBack, onRegenerate }: GeneratedWorkoutPreviewProps) {
   // Animation for exercise cards
   const [animatedItems, setAnimatedItems] = useState<number[]>([])
+  // console.log("am testing my own",workout)
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [filteredExercises, setFilteredExercises] = useState(workout.exercises)
   let nav=useNavigate()

@@ -8,6 +8,7 @@ import { Exercise, WorkoutFormState } from "@/types/workout"
 import { Link } from "react-router"
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
+import moment from "moment"
 
 interface WorkoutDetailModalProps {
     workout: WorkoutFormState
@@ -136,7 +137,7 @@ export function WorkoutDetailModal({ workout, isOpen, onClose }: WorkoutDetailMo
                                             <div className="flex items-center gap-1">
                                                 <TrendingUp className="h-3.5 w-3.5 text-blue-300" />
                                                 <p className="font-medium text-white">
-                                                    {new Date(Number(workout.created_at)).toLocaleDateString()}
+                                                    {moment(workout.created_at).fromNow()}
                                                 </p>
                                             </div>
                                         </div>
