@@ -135,6 +135,7 @@ export function WorkoutGeneratorForm({
 
         </div>
       )}
+      
     </Card>
   )
 }

@@ -15,6 +15,7 @@ import type { Exercise } from "@/types/exercise"
 import { useNavigate } from "react-router"
 import { api } from "@/api"
 import { toast } from "sonner"
+import { storeWorkout } from "@/capacitor/store"
 
 function WorkoutForm() {
   const {
@@ -32,7 +33,6 @@ function WorkoutForm() {
 
   const handleSave = async () => {
     // Store It offline
-    // storeTemplate(state)
 
     console.log("Saving workout:", state)
     try {
@@ -43,6 +43,7 @@ function WorkoutForm() {
     } catch (error) {
       toast.error("Failed to save workout,with our api but it stored locally.")
     } finally {
+      storeWorkout(state)
       nav("/")
     }
     console.log("Saving workout:", state);
@@ -102,8 +103,8 @@ function WorkoutForm() {
             setName={(name) => dispatch({ type: "SET_NAME", payload: name })}
             description={state.description}
             setDescription={(description) => dispatch({ type: "SET_DESCRIPTION", payload: description })}
-            saveAsTemplate={state.saveAsTemplate}
-            setSaveAsTemplate={(save) => dispatch({ type: "SET_SAVE_AS_TEMPLATE", payload: save })}
+            is_template={state.is_template}
+            setis_template={(save) => dispatch({ type: "SET_SAVE_AS_TEMPLATE", payload: save })}
             state={state} // Pass the state prop
           />
 
@@ -190,7 +191,7 @@ function WorkoutForm() {
       />
 
       {/* Bottom Action Bar */}
-      <BottomActionBar saveAsTemplate={state.saveAsTemplate} onSave={handleSave} />
+      <BottomActionBar is_template={state.is_template} onSave={handleSave} />
     </div>
   )
 }

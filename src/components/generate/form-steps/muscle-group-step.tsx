@@ -31,7 +31,6 @@ export function MuscleGroupStep({
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [showSearch, setShowSearch] = useState(false)
-  console.log(selectedMuscleGroups)
   // Enhanced muscle group options with categories
   const muscleGroupData = useMemo(() => [
     { name: "Full Body", category: "Complete" },

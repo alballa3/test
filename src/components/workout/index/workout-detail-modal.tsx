@@ -288,7 +288,7 @@ export function WorkoutDetailModal({ workout, isOpen, onClose }: WorkoutDetailMo
                                             <div className="space-y-2 text-sm">
                                                 <div className="flex justify-between py-2 border-b border-gray-700/30">
                                                     <span className="text-gray-400">Template</span>
-                                                    <span className="text-white">{workout.saveAsTemplate ? "Yes" : "No"}</span>
+                                                    <span className="text-white">{workout.is_template ? "Yes" : "No"}</span>
                                                 </div>
                                                 <div className="flex justify-between py-2 border-b border-gray-700/30">
                                                     <span className="text-gray-400">Total Sets</span>
