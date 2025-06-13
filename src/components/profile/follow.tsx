@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { UserPlus, UserCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { api } from "@/api"
+// import { api } from "@/api"
 
 interface FollowProps {
   userId: number
@@ -19,7 +19,7 @@ interface FollowProps {
 }
 
 export default function Follow({
-  userId,
+  
   initialFollowState = false,
   userName = "",
   variant = "default",
@@ -42,7 +42,7 @@ export default function Follow({
       setIsLoading(true)
       
       // In a real implementation, you would call your API here
-      const client = await api()
+      // const client = await api()
       
       // Example API call (adjust according to your actual API)
       // const endpoint = isFollowing ? `/users/${userId}/unfollow` : `/users/${userId}/follow`

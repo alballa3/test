@@ -522,14 +522,14 @@ export default function AllWorkoutsPage() {
                 </div>
               ) : filteredWorkouts.length > 0 ? (
                 <div className="space-y-3">
-                    {filteredWorkouts.map((workout, index) => {
+                  {filteredWorkouts.map((workout, index) => {
                     workout.completedSets = workout.exercises.reduce((acc, e) => {
-                      return Number(acc) + (e.sets.filter(e=>e.isCompleted) ? Number(e.sets.length) : 0)
-                    }, 0)
-                    workout.totalSets=workout.exercises.reduce((acc, e) => {
+                      const completed = e.sets.filter(set => set.isCompleted).length;
+                      return acc + completed;
+                    }, 0);
+                    workout.totalSets = workout.exercises.reduce((acc, e) => {
                       return Number(acc) + (e.sets ? Number(e.sets.length) : 0)
                     }, 0)
-                    const completionPercentage = Math.round((workout.completedSets / workout.totalSets) * 100)
                     workout.totalVolume = workout.exercises.map((ex) => {
 
                       return ex.sets.reduce((acc, e) => {
