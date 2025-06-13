@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import StepOne from "./step-one"
 import StepTwo from "./step-two"
 import StepThree from "./step-three"
@@ -16,7 +16,7 @@ import { create_token } from "@/capacitor/auth"
 import { toast, Toaster } from "sonner"
 import axios from "axios"
 
-// Add keyframes for mobile animations
+// Enhanced keyframes for mobile animations
 const mobileAnimations = `
 @keyframes float {
   0%, 100% {
@@ -52,6 +52,30 @@ const mobileAnimations = `
     background-position: 200% 0;
   }
 }
+
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes auto-progress {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
 `
 
 export default function RegisterForm() {
@@ -77,16 +101,20 @@ export default function RegisterForm() {
     password: "",
   })
   const [registrationComplete] = useState(false)
+  const [autoProgressEnabled, setAutoProgressEnabled] = useState(false)
+  const [autoProgressDelay, setAutoProgressDelay] = useState(2000) // 2 seconds default
+  const [showAutoProgressIndicator, setShowAutoProgressIndicator] = useState(false)
+  const [isProgressing, setIsProgressing] = useState(false)
   const router = useNavigate()
 
-  // Add subtle background animation
+  // Enhanced animation states
   const [rotation, setRotation] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
   const [swipeDirection, setSwipeDirection] = useState<string | null>(null)
+  const [swipeLocked, setSwipeLocked] = useState(false)
 
   // Handle ResizeObserver error
   useEffect(() => {
-    // Suppress ResizeObserver loop limit exceeded error
     const errorHandler = (e: ErrorEvent) => {
       if (e.message.includes("ResizeObserver") || e.message.includes("ResizeObserver loop limit exceeded")) {
         e.stopImmediatePropagation()
@@ -94,16 +122,53 @@ export default function RegisterForm() {
     }
 
     window.addEventListener("error", errorHandler)
-
     return () => window.removeEventListener("error", errorHandler)
   }, [])
 
+  // Enhanced background animation
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotation((prev) => (prev + 0.2) % 360)
+      setRotation((prev) => (prev + 0.3) % 360)
     }, 50)
     return () => clearInterval(interval)
   }, [])
+
+  // Check if current step is complete for auto-progression
+  const isStepComplete = useCallback(() => {
+    switch (step) {
+      case 1:
+        return true // Step 1 is just welcome, always complete
+      case 2:
+        return userData.height && userData.weight
+      case 3:
+        return userData.day && userData.month && userData.year && userData.gender && userData.fitnessGoal && userData.activityLevel
+      case 4:
+        return userData.name && userData.email && userData.password && userData.password.length >= 6
+      default:
+        return false
+    }
+  }, [step, userData])
+
+  // Auto-progression logic
+  useEffect(() => {
+    if (!autoProgressEnabled || step >= 4 || !isStepComplete()) return
+
+    const timer = setTimeout(() => {
+      if (isStepComplete() && !isProgressing) {
+        setShowAutoProgressIndicator(true)
+        setIsProgressing(true)
+
+        // Show indicator for 1 second before progressing
+        setTimeout(() => {
+          nextStep()
+          setShowAutoProgressIndicator(false)
+          setIsProgressing(false)
+        }, 1000)
+      }
+    }, autoProgressDelay)
+
+    return () => clearTimeout(timer)
+  }, [userData, step, autoProgressEnabled, isStepComplete, autoProgressDelay, isProgressing])
 
   const updateUserData = (data: Partial<typeof userData>) => {
     setUserData((prev) => ({ ...prev, ...data }))
@@ -117,42 +182,39 @@ export default function RegisterForm() {
     setStep((prev) => Math.max(prev - 1, 1))
   }
 
-  // Handle swipe gestures for mobile
+  // Enhanced touch handling
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientX)
   }
 
-  const [swipeLocked, setSwipeLocked] = useState(false);
-
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (swipeLocked) return;
+    if (swipeLocked) return
 
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStart - touchEnd;
+    const touchEnd = e.changedTouches[0].clientX
+    const diff = touchStart - touchEnd
 
     if (Math.abs(diff) > 50) {
-      setSwipeLocked(true);
+      setSwipeLocked(true)
 
       if (diff > 0 && step < 4) {
-        setSwipeDirection("left");
-        nextStep();
+        setSwipeDirection("left")
+        nextStep()
       } else if (diff < 0 && step > 1) {
-        setSwipeDirection("right");
-        prevStep();
+        setSwipeDirection("right")
+        prevStep()
       }
 
       setTimeout(() => {
-        setSwipeDirection(null);
-        setSwipeLocked(false);
-      }, 500);
+        setSwipeDirection(null)
+        setSwipeLocked(false)
+      }, 500)
     }
-  };
-
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    let client = await api();
+    let client = await api()
 
     try {
       const response = await client.post("/register", {
@@ -169,89 +231,155 @@ export default function RegisterForm() {
           fitness_goal: userData.fitnessGoal,
           activity_level: userData.activityLevel,
         }
-      });
+      })
 
-      console.log(response.data); // You can log the success response
-      await create_token(response.data.token);
+      console.log(response.data)
+      await create_token(response.data.token)
       router("/")
 
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          console.log('Error response:', error.response.data);
-          console.log('Error status:', error.response.status);
-          toast.error(error.response.data.message || 'Request failed!');
+          console.log('Error response:', error.response.data)
+          console.log('Error status:', error.response.status)
+          toast.error(error.response.data.message || 'Request failed!')
         } else {
-          console.error('Error with request:', error.message);
-          toast.error('Network error!');
+          console.error('Error with request:', error.message)
+          toast.error('Network error!')
         }
       } else {
-        console.error('Unexpected error:', error);
-        toast.error('An unexpected error occurred!');
+        console.error('Unexpected error:', error)
+        toast.error('An unexpected error occurred!')
       }
     }
   }
 
-
   const handleContinue = () => {
-    // Navigate to dashboard or home page
     router("/")
   }
 
-
+  // Toggle auto-progression
+  const toggleAutoProgress = () => {
+    setAutoProgressEnabled(!autoProgressEnabled)
+    toast.success(autoProgressEnabled ? "Auto-progression disabled" : "Auto-progression enabled")
+  }
 
   return (
     <div className="relative">
       <Toaster />
-      {/* Add mobile animations */}
-      <style
-        dangerouslySetInnerHTML={{ __html: mobileAnimations }}
-      />
+      <style dangerouslySetInnerHTML={{ __html: mobileAnimations }} />
 
+      {/* Auto-progression settings */}
+      <div className="absolute -top-16 right-0 flex items-center gap-3 mb-4">
+        <button
+          onClick={toggleAutoProgress}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${autoProgressEnabled
+            ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+            : "bg-gray-700/50 text-gray-400 border border-gray-600/30"
+            }`}
+        >
+          Auto-progress: {autoProgressEnabled ? "ON" : "OFF"}
+        </button>
 
-      {/* Animated border effect */}
+        {autoProgressEnabled && (
+          <select
+            value={autoProgressDelay}
+            onChange={(e) => setAutoProgressDelay(Number(e.target.value))}
+            className="px-2 py-1 bg-gray-800/80 border border-gray-600/30 rounded text-xs text-gray-300"
+          >
+            <option value={1000}>1s</option>
+            <option value={2000}>2s</option>
+            <option value={3000}>3s</option>
+            <option value={5000}>5s</option>
+          </select>
+        )}
+      </div>
+
+      {/* Enhanced animated border effect */}
       <div
-        className="absolute -inset-0.5 bg-blue-500/20 rounded-2xl blur-sm"
+        className="absolute -inset-0.5 bg-blue-500/20 rounded-2xl blur-sm transition-all duration-300"
         style={{
-          background: `conic-gradient(from ${rotation}deg at 50% 50%, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.1) 25%, rgba(59, 130, 246, 0.3) 50%, rgba(37, 99, 235, 0.1) 75%, rgba(59, 130, 246, 0.3) 100%)`,
+          background: `conic-gradient(from ${rotation}deg at 50% 50%, rgba(59, 130, 246, 0.4) 0%, rgba(37, 99, 235, 0.1) 25%, rgba(59, 130, 246, 0.4) 50%, rgba(37, 99, 235, 0.1) 75%, rgba(59, 130, 246, 0.4) 100%)`,
         }}
-      ></div>
+      />
 
       <div
         className="bg-gray-900/90 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-blue-500/30 relative"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Inner glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent pointer-events-none"></div>
+        {/* Enhanced inner glow effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-purple-500/5 to-transparent pointer-events-none" />
 
-        {/* Subtle animated accent */}
-        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-70"></div>
+        {/* Dynamic top accent */}
+        <div
+          className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-70"
+          style={{
+            background: `linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, ${0.3 + Math.sin(rotation * 0.02) * 0.3}) 50%, transparent 100%)`
+          }}
+        />
 
-        {/* Mobile swipe indicator */}
+        {/* Auto-progression indicator */}
+        {showAutoProgressIndicator && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <div className="bg-blue-500/90 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg border border-blue-400/30">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                Auto-progressing to next step...
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Enhanced mobile swipe indicator */}
         {!registrationComplete && (
           <div className="absolute bottom-2 left-0 right-0 flex justify-center items-center gap-2 md:hidden">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${i === step ? "bg-blue-500 w-4" : "bg-gray-600"
+                className={`h-2 rounded-full transition-all duration-500 ${i === step
+                  ? "bg-blue-500 w-6 shadow-lg shadow-blue-500/50"
+                  : i < step
+                    ? "bg-green-500 w-2"
+                    : "bg-gray-600 w-2"
                   }`}
-              ></div>
+              />
             ))}
           </div>
         )}
 
         <div className="p-4 sm:p-6 relative z-10">
-          {!registrationComplete && <ProgressIndicator currentStep={step} totalSteps={4} />}
+          {!registrationComplete && (
+            <div className="relative">
+              <ProgressIndicator currentStep={step} totalSteps={4} />
+
+              {/* Step completion indicator */}
+              {isStepComplete() && step < 4 && autoProgressEnabled && !showAutoProgressIndicator && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute right-0 top-0 flex items-center gap-2 text-green-400 text-sm"
+                >
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  Complete
+                </motion.div>
+              )}
+            </div>
+          )}
 
           <div className="min-h-[450px] sm:min-h-[500px] flex flex-col relative">
             <AnimatePresence initial={false} mode="wait" custom={swipeDirection}>
               {registrationComplete ? (
                 <motion.div
                   key="success"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
                   className="flex flex-col h-full"
                 >
                   <SuccessAnimation userName={userData.name} onContinue={handleContinue} />
@@ -264,26 +392,35 @@ export default function RegisterForm() {
                     initial: {
                       x: swipeDirection === "left" ? 100 : swipeDirection === "right" ? -100 : 0,
                       opacity: 0,
+                      scale: 0.95,
                       position: "absolute" as const,
                       width: "100%"
                     },
                     animate: {
                       x: 0,
                       opacity: 1,
+                      scale: 1,
                       position: "relative" as const,
                       transition: {
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 }
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                        opacity: { duration: 0.3 },
+                        scale: { duration: 0.3 }
                       }
                     },
                     exit: {
                       x: swipeDirection === "left" ? -100 : swipeDirection === "right" ? 100 : 0,
                       opacity: 0,
+                      scale: 0.95,
                       position: "absolute" as const,
                       width: "100%",
                       transition: {
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 }
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                        opacity: { duration: 0.2 },
+                        scale: { duration: 0.2 }
                       }
                     }
                   }}
@@ -294,7 +431,12 @@ export default function RegisterForm() {
                 >
                   {step === 1 && <StepOne onNext={nextStep} />}
                   {step === 2 && (
-                    <StepTwo userData={userData} updateUserData={updateUserData} onNext={nextStep} onPrev={prevStep} />
+                    <StepTwo
+                      userData={userData}
+                      updateUserData={updateUserData}
+                      onNext={nextStep}
+                      onPrev={prevStep}
+                    />
                   )}
                   {step === 3 && (
                     <StepThree
@@ -316,6 +458,27 @@ export default function RegisterForm() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Enhanced navigation hints */}
+          {!registrationComplete && (
+            <div className="flex justify-between items-center mt-4 text-xs text-gray-500">
+              <div className="flex items-center gap-2">
+                {step > 1 && (
+                  <span className="hidden sm:inline">← Previous</span>
+                )}
+                <span className="sm:hidden">Swipe to navigate</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {autoProgressEnabled && isStepComplete() && step < 4 && (
+                  <span className="text-blue-400 animate-pulse">Auto-progressing...</span>
+                )}
+                {step < 4 && (
+                  <span className="hidden sm:inline">Next →</span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

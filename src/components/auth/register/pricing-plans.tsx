@@ -77,7 +77,7 @@ export default function PricingPlans({ onBack, onSelectPlan }: PricingPlansProps
       recommended: false,
     },
     {
-      name: "GymRat Pro",
+      name: "MyGymbro Pro",
       price: "$9.99",
       period: "per month",
       features: [
@@ -95,7 +95,7 @@ export default function PricingPlans({ onBack, onSelectPlan }: PricingPlansProps
       recommended: true,
     },
     {
-      name: "GymRat Elite",
+      name: "Mygymbro Elite",
       price: "$19.99",
       period: "per month",
       features: [

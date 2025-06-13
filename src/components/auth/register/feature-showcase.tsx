@@ -78,7 +78,7 @@ export default function FeatureShowcase() {
   return (
     <div className="py-8">
       <h2 className="text-2xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
-        GymRat Features
+        Mygymbro Features
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

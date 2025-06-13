@@ -85,3 +85,21 @@ export async function getAllWorkouts() {
     }
     return workouts
 }
+export async function getAll() {
+    let file = await Filesystem.readdir({
+        path: `workout/`,
+        directory: Directory.Data,
+    })
+    let workouts = []
+    for (const fileName of file.files) {
+        let file = await Filesystem.readFile({
+            path: `workout/${fileName.name}`,
+            directory: Directory.Data,
+            encoding: Encoding.UTF8
+        });
+        let workout: WorkoutFormState = JSON.parse(file.data as string)
+      
+        workouts.push(workout)
+    }
+    return workouts
+}

@@ -37,7 +37,7 @@ export function AppHeader() {
                         <Dumbbell className="h-5 w-5 text-indigo-400" />
                     </div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-violet-400 bg-clip-text text-transparent">
-                        GymRat Tracker
+                        Mygymbro Tracker
                     </h1>
                 </div>
                 <Button

@@ -30,6 +30,8 @@ import {
 } from "lucide-react"
 import { api } from "@/api"
 import { getAllWorkouts } from "@/capacitor/store"
+import { toast, Toaster } from "sonner"
+import { WorkoutFormState } from "@/types/workout"
 
 export default function AllWorkoutsPage() {
   const [workouts, setWorkouts] = useState<HistoryWorkout[]>([])
@@ -53,6 +55,8 @@ export default function AllWorkoutsPage() {
   // Load workout data
   useEffect(() => {
     const handle = async () => {
+      const workouts: WorkoutFormState[] = await getAllWorkouts()
+      setWorkouts(workouts as unknown as HistoryWorkout[])
       try {
         const client = await api()
         const res = await client.get("/workouts")
@@ -60,12 +64,11 @@ export default function AllWorkoutsPage() {
         setWorkouts(workoutData)
       } catch (error) {
         console.log(error)
-        const workouts: any = await getAllWorkouts()
-        setWorkouts(workouts)
+        toast.error("Failed to fetch workouts, showing local data.")
       }
       // Calculate stats
       const total = workouts.length
-      const timer = workouts.reduce((acc, workout) => acc + workout.timer, 0)
+      const timer = workouts.reduce((acc, workout) => acc + Number(workout.timer), 0)
       const volume = workouts.map((ex) => {
         if (ex.exercises && ex.exercises.length > 0) {
           return ex.exercises.reduce((acc, e) => {
@@ -173,7 +176,7 @@ export default function AllWorkoutsPage() {
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9IiMxMTEyMjciIGQ9Ik0wIDBoNjB2NjBIMHoiLz48cGF0aCBkPSJNNjAgMzBjMCAxNi41NjktMTMuNDMxIDMwLTMwIDMwQzEzLjQzMSA2MCAwIDQ2LjU2OSAwIDMwIDAgMTMuNDMxIDEzLjQzMSAwIDMwIDBjMTYuNTY5IDAgMzAgMTMuNDMxIDMwIDMweiIgc3Ryb2tlPSIjMjAyMjM4IiBzdHJva2Utd2lkdGg9Ii41Ii8+PC9nPjwvc3ZnPg==')] opacity-[0.03]"></div>
       </div>
-
+      <Toaster />
       <AppHeader />
 
       <main className="flex-1 p-4 md:p-6 pb-20 relative z-10">
@@ -381,9 +384,6 @@ export default function AllWorkoutsPage() {
                     // Calculate completion percentage
                     { console.log(workout) }
                     const completionPercentage = Math.round(((workout.completedSets ?? 0) / (workout.totalSets ?? 1)) * 100)
-
-                    // Determine if this workout has any personal records
-
                     return (
                       <div
                         key={workout.id}
@@ -522,9 +522,21 @@ export default function AllWorkoutsPage() {
                 </div>
               ) : filteredWorkouts.length > 0 ? (
                 <div className="space-y-3">
-                  {filteredWorkouts.map((workout, index) => {
-                    // const completionPercentage = Math.round((workout.completedSets / workout.totalSets) * 100)
+                    {filteredWorkouts.map((workout, index) => {
+                    workout.completedSets = workout.exercises.reduce((acc, e) => {
+                      return Number(acc) + (e.sets.filter(e=>e.isCompleted) ? Number(e.sets.length) : 0)
+                    }, 0)
+                    workout.totalSets=workout.exercises.reduce((acc, e) => {
+                      return Number(acc) + (e.sets ? Number(e.sets.length) : 0)
+                    }, 0)
+                    const completionPercentage = Math.round((workout.completedSets / workout.totalSets) * 100)
+                    workout.totalVolume = workout.exercises.map((ex) => {
 
+                      return ex.sets.reduce((acc, e) => {
+                        // return Number(acc) + (e. ? e.sets.filter((s) => s.isCompleted).reduce((acc, s) => Number(acc) + Number(s.weight) * Number(s.reps), 0) : 0);
+                        return Number(acc) + (e.isCompleted ? Number(e.weight * e.reps) : 0)
+                      }, 0)
+                    }).reduce((acc, val) => Number(acc) + Number(val || 0), 0)
 
                     return (
                       <div
@@ -546,13 +558,16 @@ export default function AllWorkoutsPage() {
                               {/* {hasPersonalRecord && <Trophy className="h-4 w-4 text-amber-400" />} */}
                             </h3>
 
-                            {/* <Badge className={getIntensityBadgeStyle(workout.intensity)}>
-                              {workout.intensity} Intensity
-                            </Badge> */}
+
                           </div>
 
                           <div className="flex items-center text-gray-400 text-sm mb-2">
                             <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                            <span>
+                              {moment(Number(workout.date)).isValid()
+                                ? moment(Number(workout.date)).fromNow()
+                                : 'Invalid date'}
+                            </span>
                             {/* <span>{formatDate(workout.date)}</span> */}
                           </div>
 

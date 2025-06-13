@@ -6,12 +6,30 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { UserResponse } from "@/pages/[id]/profile"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { api } from "@/api"
+import { toast, Toaster } from "sonner"
+import { AxiosError } from "axios"
 
 export default function PublicProfileHeader({ user }: { user: UserResponse }) {
-  const [isFollowing, setIsFollowing] = useState(false)
+  const [isFollowing] = useState(false)
   const [showActions, setShowActions] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
-
+  const handleFollow = async () => {
+    try {
+      const client = await api()
+      const reponse = await client.post(`/follow/${user.id}`)
+      console.log(reponse.data)
+      toast.success("Followed successfully")
+    } catch (error) {
+      console.log(error)
+      const err=error as AxiosError
+      toast.error(
+        typeof err.response?.data === 'object' && err.response?.data && 'message' in err.response.data
+          ? String(err.response.data.message)
+          : err.message || "Something went wrong"
+      )
+    }
+  }
   // Animation on mount
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,7 +57,7 @@ export default function PublicProfileHeader({ user }: { user: UserResponse }) {
 
   const nameGradient = getGradient(user.name)
   const initials = user.name.split(" ").map(n => n[0]).join("")
-  
+
   // Calculate member since date
   const memberSince = new Date(user.created_at || Date.now()).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -48,6 +66,7 @@ export default function PublicProfileHeader({ user }: { user: UserResponse }) {
 
   return (
     <div className={`relative transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <Toaster/>
       {/* Background header pattern */}
       <div className="absolute inset-0 bg-zinc-900 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/40 to-zinc-900/80 rounded-xl overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/[0.02]" />
@@ -57,10 +76,10 @@ export default function PublicProfileHeader({ user }: { user: UserResponse }) {
         {/* Hero banner area - animated gradient with personalized pattern */}
         <div className="h-24 md:h-32 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 relative overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent_0%,rgb(59,130,246,0.1)_15%,transparent_30%)] animate-shimmer" />
-          
+
           {/* Personalized pattern based on user */}
           <div className={`absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] ${nameGradient}`}></div>
-          
+
           {/* Subtle user name watermark */}
           <div className="absolute right-8 bottom-2 text-4xl font-bold text-white/5 select-none">
             {user.name.split(' ')[0]}
@@ -133,7 +152,7 @@ export default function PublicProfileHeader({ user }: { user: UserResponse }) {
                 </div>
               </div>
 
-              
+
             </div>
 
             {/* Action buttons with animated entrance */}
@@ -148,7 +167,7 @@ export default function PublicProfileHeader({ user }: { user: UserResponse }) {
                           ? "bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700"
                           : `bg-gradient-to-r ${nameGradient} hover:opacity-90 text-white`
                       }
-                      onClick={() => setIsFollowing(!isFollowing)}
+                      onClick={handleFollow}
                     >
                       {isFollowing ? "Following" : "Follow"}
                     </Button>
@@ -159,8 +178,9 @@ export default function PublicProfileHeader({ user }: { user: UserResponse }) {
                 </Tooltip>
               </TooltipProvider>
 
-              
+
             </div>
+
           </div>
         </div>
       </section>

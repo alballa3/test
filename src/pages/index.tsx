@@ -12,66 +12,29 @@ import { toast, Toaster } from "sonner"
 
 export default function HomePage() {
     const [templates, setTemplates] = useState<WorkoutFormState[]>([])
-    const [isLoading, setIsLoading] = useState<boolean>(true); // Add isLoading state
     // const [lastWorkout, setLastWorkout] = useState<WorkoutFormState | null>(null)
     useEffect(() => {
         const handle = async () => {
-            setIsLoading(true); // Set loading to true when fetching starts
-            try {
-                const client = await api()
-                const templatesData: WorkoutFormState[] = await (await client.get("/template")).data
-                setTemplates(templatesData)
+            const localTemplates = await getAllTemplate(); // Load offline data first
+            setTemplates(localTemplates); // Show it quickly
 
+            try {
+                const client = await api();
+                const templatesData: WorkoutFormState[] = (await client.get("/template")).data;
+                setTemplates(templatesData); // Overwrite with fresh data
             } catch (error) {
-                console.error(error)
-                toast.error("Failed to fetch workouts, but local data is loaded.");
-                const localTemplates = await getAllTemplate()
-                setTemplates(localTemplates)
-            } finally {
-                setIsLoading(false); // Set loading to false after fetching (success or error)
+                console.error(error);
+                toast.error("Failed to fetch workouts, showing local data.");
+            } 
+            finally {
+                // setLastWorkout(templatesData[0] || null);
             }
-        }
+        };
+
         handle()
     }, [])
 
-    // Loading State UI
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center">
-                {/* Background particles/effects (optional for loading screen) */}
-                <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-20 right-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-40 left-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                </div>
-
-                <div className="relative text-center">
-                    <svg
-                        className="animate-spin h-12 w-12 text-blue-400 mx-auto mb-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                    >
-                        <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                        ></circle>
-                        <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                    </svg>
-                    <h2 className="text-2xl font-semibold text-white mb-2">Loading Workouts...</h2>
-                    <p className="text-gray-400">Please wait a moment.</p>
-                </div>
-            </div>
-        );
-    }
-
+  
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 text-white">
             {/* Background particles/effects */}

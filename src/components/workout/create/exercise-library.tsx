@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Filter, ChevronLeft, ChevronRight, Plus, Dumbbell, BarChart, Info } from "lucide-react"
+import { Search, Filter, ChevronLeft, ChevronRight, Plus, Dumbbell, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,8 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ExerciseDetailModal } from "./exercise-detail-modal"
 import { level, type Exercise, type ExerciseLibraryProps } from "@/types/exercise"
 
-// import workout from "../../assets/exercises.json";
-// let data: Exercise[] = ;
 type PaginationData = {
   total: number
   page: number
@@ -210,7 +208,7 @@ export function ExerciseLibrary({ onSelectExercise }: ExerciseLibraryProps) {
                         <CardTitle className="text-white text-lg flex items-center gap-2 truncate">
                           {exercise.name}
                         </CardTitle>
-                        <CardDescription className="line-clamp-2 mt-1">{exercise.instructions?.[0]}</CardDescription>
+                        <CardDescription className="line-clamp-2 mt-1">{exercise.instructions}</CardDescription>
                       </div>
                       <Button
                         onClick={() => onSelectExercise(exercise)}
@@ -222,15 +220,14 @@ export function ExerciseLibrary({ onSelectExercise }: ExerciseLibraryProps) {
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 mt-3">
-                      {exercise.primaryMuscles?.map((muscle) => (
-                        <Badge
-                          key={muscle}
-                          variant="outline"
-                          className="bg-purple-500/10 text-purple-300 border-purple-500/30 hover:bg-purple-500/20"
-                        >
-                          {muscle}
-                        </Badge>
-                      ))}
+                      <Badge
+                        key={exercise.primaryMuscles}
+                        variant="outline"
+                        className="bg-purple-500/10 text-purple-300 border-purple-500/30 hover:bg-purple-500/20"
+                      >
+                        {exercise.primaryMuscles}
+                      </Badge>
+
                       <Badge
                         variant="outline"
                         className={`
@@ -261,10 +258,7 @@ export function ExerciseLibrary({ onSelectExercise }: ExerciseLibraryProps) {
                         <Dumbbell className="h-3.5 w-3.5 text-purple-400" />
                         <span>{exercise.equipment}</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <BarChart className="h-3.5 w-3.5 text-purple-400" />
-                        <span>{exercise.mechanic || "N/A"}</span>
-                      </div>
+
                     </div>
                   </div>
 

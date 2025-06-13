@@ -13,7 +13,7 @@ import { api } from "@/api"
 export default function ProfileDetails({ user, setUser, setProfile, profile }: { user: User, setUser: (user: User) => void, setProfile: (profile: Profile) => void, profile: Profile }) {
   const [isEditing, setIsEditing] = useState(false)
 
-  const handleSubmit =async () => {
+  const handleSubmit = async () => {
     setIsEditing(false)
     const client = await api()
     const res = await client.put("/profile/bio", {
@@ -218,8 +218,8 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
                   key="display"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    
+                  exit={{ opacity: 0 }}
+
                   className="text-sm py-2 text-white bg-zinc-800/30 rounded-lg px-3 border border-zinc-700/30"
                 >
                   {user.user_data.height} {user.user_data.height_unit}

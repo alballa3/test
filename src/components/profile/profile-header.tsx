@@ -9,19 +9,28 @@ import { Badge } from "@/components/ui/badge"
 import { Profile, User } from "@/types/user"
 import { api } from "@/api"
 import { useNavigate } from "react-router"
-import { delete_token } from "@/capacitor/auth"
+import { delete_token, get_token } from "@/capacitor/auth"
+import { getAll } from "@/capacitor/store"
 
 export default function ProfileHeader({ user, setUser }: { user: Profile, setUser: (user: User) => void }) {
   const [isEditing, setIsEditing] = useState(false)
-  let router=useNavigate()
+  let router = useNavigate()
   const [tempUsername, setTempUsername] = useState(user.user.name)
   const [isUploading, setIsUploading] = useState(false)
   const [showShareTooltip, setShowShareTooltip] = useState(false)
-
+  const handlechange = async () => {
+    const token = await get_token()
+    console.log(token)
+    const get_workouts = await getAll()
+    console.log(get_workouts)
+    const client = await api()
+    const response = await client.post("/workouts/all", get_workouts)
+    console.log(response)
+  }
   const handleSave = async () => {
     try {
       const client = await api()
-       await client.put("/profile/name", {
+      await client.put("/profile/name", {
         name: tempUsername,
       })
       setUser({ ...user.user, name: tempUsername })
@@ -251,13 +260,11 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" onClick={handlechange}>
               <Badge className="bg-gradient-to-r from-blue-600 to-blue-400 text-white border-none px-2 py-0.5 sm:px-3 sm:py-1 text-sm shadow-lg shadow-blue-500/20">
-                Beta Tester
+                Transform data in the backend
               </Badge>
-              <Badge className="bg-gradient-to-r from-amber-600 to-amber-400 text-white border-none px-2 py-0.5 sm:px-3 sm:py-1 text-sm shadow-lg shadow-amber-500/20">
-                Admin User
-              </Badge>
+
             </div>
           </div>
           <p className="text-zinc-300 text-sm md:text-base">{user.bio || "No bio yet. Click edit to add one."}</p>
@@ -293,7 +300,7 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
 
         {/* Action buttons */}
         <div className="absolute top-4 right-4 md:static md:flex md:flex-col md:gap-2 md:self-start">
-          
+
           <Button
             variant="ghost"
             size="icon"
