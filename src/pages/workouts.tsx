@@ -533,7 +533,6 @@ export default function AllWorkoutsPage() {
                     workout.totalVolume = workout.exercises.map((ex) => {
 
                       return ex.sets.reduce((acc, e) => {
-                        // return Number(acc) + (e. ? e.sets.filter((s) => s.isCompleted).reduce((acc, s) => Number(acc) + Number(s.weight) * Number(s.reps), 0) : 0);
                         return Number(acc) + (e.isCompleted ? Number(e.weight * e.reps) : 0)
                       }, 0)
                     }).reduce((acc, val) => Number(acc) + Number(val || 0), 0)
