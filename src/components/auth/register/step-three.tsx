@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Calendar, Activity, Target, ArrowLeft, ArrowRight } from "lucide-react"
+import { Calendar, ArrowLeft, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useState, useRef } from "react"
@@ -12,8 +12,6 @@ interface StepThreeProps {
     month: string
     year: string
     gender: string
-    fitnessGoal: string
-    activityLevel: string
   }
   updateUserData: (data: Partial<StepThreeProps["userData"]>) => void
   onNext: () => void
@@ -43,22 +41,7 @@ export default function StepThree({ userData, updateUserData, onNext, onPrev }: 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: 100 }, (_, i) => (currentYear - i).toString())
 
-  const fitnessGoals = [
-    "Weight Loss",
-    "Muscle Gain",
-    "Endurance",
-    "Strength",
-    "General Fitness",
-    "Athletic Performance",
-  ]
-
-  const activityLevels = [
-    "Sedentary (little to no exercise)",
-    "Light (exercise 1-3 days/week)",
-    "Moderate (exercise 3-5 days/week)",
-    "Active (exercise 6-7 days/week)",
-    "Very Active (intense exercise daily)",
-  ]
+  // Fitness goals and activity levels removed
 
   const handleNext = () => {
     // Basic validation
@@ -66,9 +49,7 @@ export default function StepThree({ userData, updateUserData, onNext, onPrev }: 
       !userData.day ||
       !userData.month ||
       !userData.year ||
-      !userData.gender ||
-      !userData.fitnessGoal ||
-      !userData.activityLevel
+      !userData.gender
     ) {
       alert("Please complete all fields")
       return
@@ -267,75 +248,7 @@ export default function StepThree({ userData, updateUserData, onNext, onPrev }: 
           </div>
         </motion.div>
 
-        {/* Fitness Goal Field */}
-        <motion.div
-          variants={item}
-          className="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg border border-blue-500/20 hover:border-blue-500/50 transition-all duration-300 group hover:shadow-lg hover:shadow-blue-500/10"
-          whileHover={{ y: -2 }}
-          whileTap={{ scale: 0.99 }}
-          onMouseEnter={() => setActiveField("goal")}
-          onMouseLeave={() => setActiveField(null)}
-          layout
-        >
-          <div className="flex items-center mb-2 sm:mb-3">
-            <div className="bg-blue-900/30 p-2 rounded-full mr-2 sm:mr-3 group-hover:bg-blue-800/40 transition-colors duration-300">
-              <Target className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
-            </div>
-            <label className="text-white font-medium text-base sm:text-lg">Fitness Goal</label>
-          </div>
-
-          <Select value={userData.fitnessGoal} onValueChange={(value) => updateUserData({ fitnessGoal: value })}>
-            <SelectTrigger className="bg-gray-900/70 border border-blue-500/20 text-white h-[42px] sm:h-[50px] hover:bg-gray-800/90 transition-colors duration-300">
-              <SelectValue placeholder="Select your primary fitness goal" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 border border-blue-500/20">
-              {fitnessGoals.map((goal) => (
-                <SelectItem 
-                  key={goal} 
-                  value={goal}
-                  className="text-white hover:bg-blue-600/20 focus:bg-blue-600/30 cursor-pointer transition-colors duration-200"
-                >
-                  {goal}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </motion.div>
-
-        {/* Activity Level Field */}
-        <motion.div
-          variants={item}
-          className="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg border border-blue-500/20 hover:border-blue-500/50 transition-all duration-300 group hover:shadow-lg hover:shadow-blue-500/10"
-          whileHover={{ y: -2 }}
-          whileTap={{ scale: 0.99 }}
-          onMouseEnter={() => setActiveField("activity")}
-          onMouseLeave={() => setActiveField(null)}
-          layout
-        >
-          <div className="flex items-center mb-2 sm:mb-3">
-            <div className="bg-blue-900/30 p-2 rounded-full mr-2 sm:mr-3 group-hover:bg-blue-800/40 transition-colors duration-300">
-              <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
-            </div>
-            <label className="text-white font-medium text-base sm:text-lg">Activity Level</label>
-          </div>
-
-          <Select value={userData.activityLevel} onValueChange={(value) => updateUserData({ activityLevel: value })}>
-            <SelectTrigger className="bg-gray-900/70 border border-blue-500/20 text-white h-[42px] sm:h-[50px] hover:bg-gray-800/90 transition-colors duration-300">
-              <SelectValue placeholder="Select your activity level" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-900 border border-blue-500/20">
-              {activityLevels.map((level) => (
-                <SelectItem 
-                  key={level} 
-                  value={level}
-                  className="text-white hover:bg-blue-600/20 focus:bg-blue-600/30 cursor-pointer transition-colors duration-200"
-                >
-                  {level}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </motion.div>
+        {/* Fitness Goal and Activity Level fields removed */}
       </motion.div>
 
       <motion.div

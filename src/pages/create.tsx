@@ -13,9 +13,9 @@ import { ExerciseDetailModal } from "@/components/workout/create/exercise-detail
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Exercise } from "@/types/exercise"
 import { useNavigate } from "react-router"
-import { api } from "@/api"
 import { toast } from "sonner"
 import { storeWorkout } from "@/capacitor/store"
+import { storeWorkoutOnline } from "@/supabase/workout"
 
 function WorkoutForm() {
   const {
@@ -37,9 +37,8 @@ function WorkoutForm() {
     console.log("Saving workout:", state)
     try {
       // Store It For With our api
-      let client = await api()
-      let respose = await client.post("/template", state)
-      console.log(respose)
+      await storeWorkoutOnline(state,true)
+     
     } catch (error) {
       toast.error("Failed to save workout,with our api but it stored locally.")
     } finally {

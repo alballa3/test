@@ -1,17 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { AppHeader } from "@/components/layout/app-header"
-import { MobileNavigation } from "@/components/layout/mobile-navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { WorkoutDetailView } from "@/components/history/workout-detail-view"
-import { Progress } from "@/components/ui/progress"
-import type { HistoryWorkout } from "@/types/history"
+import { useState, useEffect } from "react";
+import { AppHeader } from "@/components/layout/app-header";
+import { MobileNavigation } from "@/components/layout/mobile-navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { WorkoutDetailView } from "@/components/history/workout-detail-view";
+import { Progress } from "@/components/ui/progress";
+import type { HistoryWorkout } from "@/types/history";
 import moment from "moment";
 import {
   Search,
@@ -27,142 +38,196 @@ import {
   Activity,
   Sparkles,
   Zap,
-} from "lucide-react"
-import { api } from "@/api"
-import { getAllWorkouts } from "@/capacitor/store"
-import { toast, Toaster } from "sonner"
-import { WorkoutFormState } from "@/types/workout"
+} from "lucide-react";
+import { getAllWorkouts } from "@/capacitor/store";
+import { toast, Toaster } from "sonner";
+import { WorkoutFormState } from "@/types/workout";
+import { getAllWorkoutOnline } from "@/supabase/workout";
 
 export default function AllWorkoutsPage() {
-  const [workouts, setWorkouts] = useState<HistoryWorkout[]>([])
-  const [filteredWorkouts, setFilteredWorkouts] = useState<HistoryWorkout[]>([])
-  const [selectedWorkout, setSelectedWorkout] = useState<HistoryWorkout | null>(null)
-  const [isDetailOpen, setIsDetailOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "calendar">("grid")
-  const [sortBy, setSortBy] = useState<"date" | "name" | "timer" | "volume">("date")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const [filterIntensity, setFilterIntensity] = useState<"All" | "Low" | "Medium" | "High">("All")
-  const [isLoading, setIsLoading] = useState(true)
-  const [showFilters, setShowFilters] = useState(false)
-  const [activeFilters, setActiveFilters] = useState(0)
+  const [workouts, setWorkouts] = useState<HistoryWorkout[]>([]);
+  const [filteredWorkouts, setFilteredWorkouts] = useState<HistoryWorkout[]>(
+    []
+  );
+  const [selectedWorkout, setSelectedWorkout] = useState<HistoryWorkout | null>(
+    null
+  );
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "calendar">(
+    "grid"
+  );
+  const [sortBy, setSortBy] = useState<"date" | "name" | "timer" | "volume">(
+    "date"
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [filterIntensity, setFilterIntensity] = useState<
+    "All" | "Low" | "Medium" | "High"
+  >("All");
+  const [isLoading, setIsLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(0);
 
   // Stats
-  const [totalWorkouts, setTotalWorkouts] = useState(0)
-  const [totaltimer, setTotaltimer] = useState(0)
-  const [totalVolume, setTotalVolume] = useState(0)
+  const [totalWorkouts, setTotalWorkouts] = useState(0);
+  const [totaltimer, setTotaltimer] = useState(0);
+  const [totalVolume, setTotalVolume] = useState(0);
 
   // Load workout data
   useEffect(() => {
     const handle = async () => {
-      const workouts: WorkoutFormState[] = await getAllWorkouts()
-      setWorkouts(workouts as unknown as HistoryWorkout[])
-      try {
-        const client = await api()
-        const res = await client.get("/workouts")
-        let workoutData = res.data
-        setWorkouts(workoutData)
-      } catch (error) {
-        console.log(error)
-        toast.error("Failed to fetch workouts, showing local data.")
-      }
-      // Calculate stats
-      const total = workouts.length
-      const timer = workouts.reduce((acc, workout) => acc + Number(workout.timer), 0)
-      const volume = workouts.map((ex) => {
-        if (ex.exercises && ex.exercises.length > 0) {
-          return ex.exercises.reduce((acc, e) => {
-            return Number(acc) + (e.sets ? e.sets.filter((s) => s.isCompleted).reduce((acc, s) => Number(acc) + Number(s.weight) * Number(s.reps), 0) : 0);
-          }, 0)
-        }
-      }).reduce((acc, val) => Number(acc) + Number(val || 0), 0)
-      console.log(volume)
-      setTotalWorkouts(total)
-      setTotaltimer(timer)
-      setTotalVolume(volume || 0)
+      let workouts: WorkoutFormState[] = [];
+      let onlineWorkouts: HistoryWorkout[] = [];
 
-      setIsLoading(false)
-    }
-    handle()
-  }, [])
+      // 1. Get local workouts
+      try {
+        workouts = await getAllWorkouts();
+        setWorkouts(workouts as unknown as HistoryWorkout[]);
+      } catch (error) {
+        console.error("Local workout fetch error:", error);
+        toast.error("Failed to load local workouts.");
+      }
+
+      // 2. Get online workouts
+      try {
+        onlineWorkouts = (await getAllWorkoutOnline()) as HistoryWorkout[];
+      } catch (error) {
+        console.error("Online workout fetch error:", error);
+        toast.error("Failed to load online workouts.");
+      }
+
+      // 3. Merge and filter
+      const allworkouts = [...onlineWorkouts, ...workouts] as HistoryWorkout[];
+
+      // Optional: sort by date
+      allworkouts.sort(
+        (a, b) =>
+          moment(a.created_at).valueOf() - moment(b.created_at).valueOf()
+      );
+
+      let lastTime: moment.Moment | null = null;
+      let result: HistoryWorkout[] = [];
+
+      for (const workout of allworkouts) {
+        let current = moment(workout.created_at);
+        if (!current.isValid()) {
+          current = moment(Number(workout.created_at));
+        }
+        if (!current.isValid()) continue;
+
+        if (!lastTime || current.diff(lastTime, "seconds") > 1) {
+          result.push(workout);
+          lastTime = current;
+        }
+      }
+
+      console.log(result);
+      setWorkouts(result);
+      // Calculate stats
+      const total = workouts.length + 1;
+      const timer = workouts.reduce(
+        (acc, workout) => acc + Number(workout.timer),
+        0
+      );
+      const volume = workouts
+        .map((ex) => {
+          if (ex.exercises && ex.exercises.length > 0) {
+            return ex.exercises.reduce((acc, e) => {
+              return (
+                Number(acc) +
+                (e.sets
+                  ? e.sets
+                      .filter((s) => s.isCompleted)
+                      .reduce(
+                        (acc, s) =>
+                          Number(acc) + Number(s.weight) * Number(s.reps),
+                        0
+                      )
+                  : 0)
+              );
+            }, 0);
+          }
+        })
+        .reduce((acc, val) => Number(acc) + Number(val || 0), 0);
+      setTotalWorkouts(total);
+      setTotaltimer(timer);
+      setTotalVolume(volume || 0);
+
+      setIsLoading(false);
+    };
+    handle();
+  }, []);
 
   // Count active filters
   useEffect(() => {
-    let count = 0
-    if (searchQuery) count++
-    if (filterIntensity !== "All") count++
-    setActiveFilters(count)
-  }, [searchQuery, filterIntensity])
+    let count = 0;
+    if (searchQuery) count++;
+    if (filterIntensity !== "All") count++;
+    setActiveFilters(count);
+  }, [searchQuery, filterIntensity]);
 
   // Filter and sort workouts
   useEffect(() => {
-    let result = [...workouts]
-
-
+    let result = [...workouts];
 
     // Apply search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       result = result.filter(
         (workout) =>
           workout.name.toLowerCase().includes(query) ||
-          workout.exercises.some((ex) => ex.name.toLowerCase().includes(query)),
-      )
+          workout.exercises.some((ex) => ex.name.toLowerCase().includes(query))
+      );
     }
 
     // Apply sorting
     result.sort((a, b) => {
-      let comparison = 0
+      let comparison = 0;
 
       switch (sortBy) {
         case "date":
-          comparison = new Date(a.date).getTime() - new Date(b.date).getTime()
-          break
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
         case "name":
-          comparison = a.name.localeCompare(b.name)
-          break
+          comparison = a.name.localeCompare(b.name);
+          break;
         case "timer":
-          comparison = a.timer - b.timer
-          break
-
+          comparison = a.timer - b.timer;
+          break;
       }
 
-      return sortOrder === "asc" ? comparison : -comparison
-    })
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
 
-    setFilteredWorkouts(result)
-  }, [workouts, searchQuery, sortBy, sortOrder, filterIntensity])
+    setFilteredWorkouts(result);
+  }, [workouts, searchQuery, sortBy, sortOrder, filterIntensity]);
 
   // Handle workout selection
   const handleWorkoutClick = (workout: HistoryWorkout) => {
-    setSelectedWorkout(workout)
-    setIsDetailOpen(true)
-  }
-
+    setSelectedWorkout(workout);
+    setIsDetailOpen(true);
+  };
 
   // Format timer from seconds to minutes
   const formattimer = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    return `${minutes} min`
-  }
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} min`;
+  };
 
   // Format total timer for stats
   const formatTotaltimer = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    return `${hours}h ${minutes}m`
-  }
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  };
 
   // Clear all filters
   const clearFilters = () => {
-    setSearchQuery("")
-    setFilterIntensity("All")
-    setSortBy("date")
-    setSortOrder("desc")
-  }
-
-
-
+    setSearchQuery("");
+    setFilterIntensity("All");
+    setSortBy("date");
+    setSortOrder("desc");
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col overflow-x-hidden">
@@ -199,7 +264,9 @@ export default function AllWorkoutsPage() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Total Workouts</p>
-                  <p className="text-2xl font-bold text-gray-100">{totalWorkouts}</p>
+                  <p className="text-2xl font-bold text-gray-100">
+                    {totalWorkouts}
+                  </p>
                 </div>
               </div>
 
@@ -209,7 +276,9 @@ export default function AllWorkoutsPage() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Total Time</p>
-                  <p className="text-2xl font-bold text-gray-100">{formatTotaltimer(totaltimer)}</p>
+                  <p className="text-2xl font-bold text-gray-100">
+                    {formatTotaltimer(totaltimer)}
+                  </p>
                 </div>
               </div>
 
@@ -219,7 +288,9 @@ export default function AllWorkoutsPage() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Total Volume</p>
-                  <p className="text-2xl font-bold text-gray-100">{totalVolume.toLocaleString()} kg</p>
+                  <p className="text-2xl font-bold text-gray-100">
+                    {totalVolume.toLocaleString()} kg
+                  </p>
                 </div>
               </div>
             </div>
@@ -229,26 +300,19 @@ export default function AllWorkoutsPage() {
           <Tabs
             defaultValue="grid"
             value={viewMode}
-            onValueChange={(value) => setViewMode(value as "grid" | "list" | "calendar")}
+            onValueChange={(value) =>
+              setViewMode(value as "grid" | "list" | "calendar")
+            }
             className="mb-6 animate-fadeIn animation-delay-300"
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-              {/* <TabsList className="bg-gray-900/50 border border-gray-800 p-1 h-auto">
-                <TabsTrigger
-                  value="grid"
-                  className="data-[state=active]:bg-gray-800 data-[state=active]:text-cyan-400 px-4 py-2"
-                >
-                  <Grid3 className="h-4 w-4 mr-2" />
-                  Grid
-                </TabsTrigger>
-            
-              </TabsList> */}
-
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`bg-gray-900/50 border-gray-800 text-gray-100 hover:bg-gray-800 ${showFilters ? "bg-gray-800 text-cyan-400" : ""}`}
+                  className={`bg-gray-900/50 border-gray-800 text-gray-100 hover:bg-gray-800 ${
+                    showFilters ? "bg-gray-800 text-cyan-400" : ""
+                  }`}
                   onClick={() => setShowFilters(!showFilters)}
                 >
                   <Filter className="h-4 w-4 mr-2" />
@@ -265,10 +329,10 @@ export default function AllWorkoutsPage() {
                   onValueChange={(value) => {
                     const [newSortBy, newSortOrder] = value.split("-") as [
                       "date" | "name" | "timer" | "volume",
-                      "asc" | "desc",
-                    ]
-                    setSortBy(newSortBy)
-                    setSortOrder(newSortOrder)
+                      "asc" | "desc"
+                    ];
+                    setSortBy(newSortBy);
+                    setSortOrder(newSortOrder);
                   }}
                 >
                   <SelectTrigger className="w-[170px] bg-gray-900/50 border-gray-800 text-gray-100">
@@ -294,7 +358,9 @@ export default function AllWorkoutsPage() {
               <div className="bg-gray-900/70 border border-gray-800/50 rounded-xl p-4 mb-4 animate-fadeIn">
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-1">
-                    <label className="text-sm text-gray-400 mb-1.5 block">Search</label>
+                    <label className="text-sm text-gray-400 mb-1.5 block">
+                      Search
+                    </label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
@@ -315,8 +381,15 @@ export default function AllWorkoutsPage() {
                   </div>
 
                   <div className="w-full md:w-[200px]">
-                    <label className="text-sm text-gray-400 mb-1.5 block">Intensity</label>
-                    <Select value={filterIntensity} onValueChange={(value) => setFilterIntensity(value as any)}>
+                    <label className="text-sm text-gray-400 mb-1.5 block">
+                      Intensity
+                    </label>
+                    <Select
+                      value={filterIntensity}
+                      onValueChange={(value) =>
+                        setFilterIntensity(value as any)
+                      }
+                    >
                       <SelectTrigger className="w-full bg-gray-800/50 border-gray-700 text-gray-100">
                         <Flame className="h-4 w-4 mr-2 text-amber-500" />
                         <SelectValue placeholder="Intensity" />
@@ -350,7 +423,8 @@ export default function AllWorkoutsPage() {
             {/* Results count */}
             <div className="mb-4 text-gray-400 text-sm animate-fadeIn animation-delay-300 flex items-center">
               <Sparkles className="h-4 w-4 mr-2 text-cyan-400" />
-              Showing {filteredWorkouts.length} {filteredWorkouts.length === 1 ? "workout" : "workouts"}
+              Showing {filteredWorkouts.length}{" "}
+              {filteredWorkouts.length === 1 ? "workout" : "workouts"}
             </div>
 
             {/* Grid View */}
@@ -369,7 +443,10 @@ export default function AllWorkoutsPage() {
                         <div className="h-4 w-1/3 bg-gray-800 rounded-md"></div>
                         <div className="grid grid-cols-3 gap-2">
                           {[1, 2, 3].map((j) => (
-                            <div key={j} className="h-16 bg-gray-800/50 rounded-lg"></div>
+                            <div
+                              key={j}
+                              className="h-16 bg-gray-800/50 rounded-lg"
+                            ></div>
                           ))}
                         </div>
                         <div className="h-4 w-full bg-gray-800 rounded-md"></div>
@@ -382,8 +459,11 @@ export default function AllWorkoutsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredWorkouts.map((workout, index) => {
                     // Calculate completion percentage
-                    { console.log(workout) }
-                    const completionPercentage = Math.round(((workout.completedSets ?? 0) / (workout.totalSets ?? 1)) * 100)
+                    const completionPercentage = Math.round(
+                      ((workout.completedSets ?? 0) /
+                        (workout.totalSets ?? 1)) *
+                        100
+                    );
                     return (
                       <div
                         key={workout.id}
@@ -406,9 +486,11 @@ export default function AllWorkoutsPage() {
                               <div className="flex items-center text-gray-400 text-sm mt-1">
                                 <Calendar className="h-3.5 w-3.5 mr-1.5" />
                                 <span>
-                                  {moment(Number(workout.created_at)).isValid()
-                                    ? moment(Number(workout.created_at)).fromNow()
-                                    : 'Invalid date'}
+                                  {moment((workout.created_at)).isValid()
+                                    ? moment(
+                                        workout.created_at
+                                      ).fromNow()
+                                    : "Invalid date"}
                                 </span>
                               </div>
                             </div>
@@ -424,7 +506,9 @@ export default function AllWorkoutsPage() {
                                 <Clock className="h-3.5 w-3.5 mr-1" />
                                 <span className="text-xs">timer</span>
                               </div>
-                              <span className="font-medium text-gray-200">{formattimer(workout.timer)}</span>
+                              <span className="font-medium text-gray-200">
+                                {formattimer(workout.timer)}
+                              </span>
                             </div>
 
                             <div className="bg-gray-900/70 rounded-lg p-2.5 flex flex-col items-center justify-center border border-gray-800/30 group-hover:border-gray-700/50 transition-colors">
@@ -432,7 +516,9 @@ export default function AllWorkoutsPage() {
                                 <Dumbbell className="h-3.5 w-3.5 mr-1" />
                                 <span className="text-xs">Exercises</span>
                               </div>
-                              <span className="font-medium text-gray-200">{workout.exercises.length}</span>
+                              <span className="font-medium text-gray-200">
+                                {workout.exercises.length}
+                              </span>
                             </div>
 
                             <div className="bg-gray-900/70 rounded-lg p-2.5 flex flex-col items-center justify-center border border-gray-800/30 group-hover:border-gray-700/50 transition-colors">
@@ -440,7 +526,9 @@ export default function AllWorkoutsPage() {
                                 <BarChart3 className="h-3.5 w-3.5 mr-1" />
                                 <span className="text-xs">Volume</span>
                               </div>
-                              <span className="font-medium text-gray-200">{workout.totalVolume} kg</span>
+                              <span className="font-medium text-gray-200">
+                                {workout.totalVolume} kg
+                              </span>
                             </div>
                           </div>
 
@@ -448,7 +536,11 @@ export default function AllWorkoutsPage() {
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-gray-400">Completion</span>
                               <span
-                                className={`font-medium ${completionPercentage === 100 ? "text-green-400" : "text-cyan-400"}`}
+                                className={`font-medium ${
+                                  completionPercentage === 100
+                                    ? "text-green-400"
+                                    : "text-cyan-400"
+                                }`}
                               >
                                 {completionPercentage}%
                               </span>
@@ -472,7 +564,7 @@ export default function AllWorkoutsPage() {
                           </Button>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               ) : (
@@ -480,9 +572,12 @@ export default function AllWorkoutsPage() {
                   <div className="bg-gray-800/50 rounded-full p-5 mb-4 border border-gray-700/30">
                     <Dumbbell className="h-8 w-8 text-gray-500" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-300 mb-2">No workouts found</h3>
+                  <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                    No workouts found
+                  </h3>
                   <p className="text-gray-400 max-w-md mb-6">
-                    We couldn't find any workouts matching your current filters. Try adjusting your search or filters.
+                    We couldn't find any workouts matching your current filters.
+                    Try adjusting your search or filters.
                   </p>
                   <Button
                     variant="outline"
@@ -523,19 +618,28 @@ export default function AllWorkoutsPage() {
               ) : filteredWorkouts.length > 0 ? (
                 <div className="space-y-3">
                   {filteredWorkouts.map((workout, index) => {
-                    workout.completedSets = workout.exercises.reduce((acc, e) => {
-                      const completed = e.sets.filter(set => set.isCompleted).length;
-                      return acc + completed;
-                    }, 0);
+                    workout.completedSets = workout.exercises.reduce(
+                      (acc, e) => {
+                        const completed = e.sets.filter(
+                          (set) => set.isCompleted
+                        ).length;
+                        return acc + completed;
+                      },
+                      0
+                    );
                     workout.totalSets = workout.exercises.reduce((acc, e) => {
-                      return Number(acc) + (e.sets ? Number(e.sets.length) : 0)
-                    }, 0)
-                    workout.totalVolume = workout.exercises.map((ex) => {
-
-                      return ex.sets.reduce((acc, e) => {
-                        return Number(acc) + (e.isCompleted ? Number(e.weight * e.reps) : 0)
-                      }, 0)
-                    }).reduce((acc, val) => Number(acc) + Number(val || 0), 0)
+                      return Number(acc) + (e.sets ? Number(e.sets.length) : 0);
+                    }, 0);
+                    workout.totalVolume = workout.exercises
+                      .map((ex) => {
+                        return ex.sets.reduce((acc, e) => {
+                          return (
+                            Number(acc) +
+                            (e.isCompleted ? Number(e.weight * e.reps) : 0)
+                          );
+                        }, 0);
+                      })
+                      .reduce((acc, val) => Number(acc) + Number(val || 0), 0);
 
                     return (
                       <div
@@ -556,8 +660,6 @@ export default function AllWorkoutsPage() {
                               {workout.name}
                               {/* {hasPersonalRecord && <Trophy className="h-4 w-4 text-amber-400" />} */}
                             </h3>
-
-
                           </div>
 
                           <div className="flex items-center text-gray-400 text-sm mb-2">
@@ -565,7 +667,7 @@ export default function AllWorkoutsPage() {
                             <span>
                               {moment(Number(workout.date)).isValid()
                                 ? moment(Number(workout.date)).fromNow()
-                                : 'Invalid date'}
+                                : "Invalid date"}
                             </span>
                             {/* <span>{formatDate(workout.date)}</span> */}
                           </div>
@@ -574,10 +676,13 @@ export default function AllWorkoutsPage() {
                             {workout.exercises.slice(0, 3).map((ex, i) => (
                               <span key={ex.id}>
                                 {ex.name}
-                                {i < Math.min(workout.exercises.length, 3) - 1 ? ", " : ""}
+                                {i < Math.min(workout.exercises.length, 3) - 1
+                                  ? ", "
+                                  : ""}
                               </span>
                             ))}
-                            {workout.exercises.length > 3 && ` +${workout.exercises.length - 3} more`}
+                            {workout.exercises.length > 3 &&
+                              ` +${workout.exercises.length - 3} more`}
                           </div>
                         </div>
 
@@ -607,12 +712,14 @@ export default function AllWorkoutsPage() {
                             size="sm"
                             className="ml-auto text-cyan-400 hover:bg-gray-800/70 hover:text-cyan-300"
                           >
-                            <span className="sr-only md:not-sr-only md:mr-2">Details</span>
+                            <span className="sr-only md:not-sr-only md:mr-2">
+                              Details
+                            </span>
                             <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                           </Button>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               ) : (
@@ -620,9 +727,12 @@ export default function AllWorkoutsPage() {
                   <div className="bg-gray-800/50 rounded-full p-5 mb-4 border border-gray-700/30">
                     <Dumbbell className="h-8 w-8 text-gray-500" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-300 mb-2">No workouts found</h3>
+                  <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                    No workouts found
+                  </h3>
                   <p className="text-gray-400 max-w-md mb-6">
-                    We couldn't find any workouts matching your current filters. Try adjusting your search or filters.
+                    We couldn't find any workouts matching your current filters.
+                    Try adjusting your search or filters.
                   </p>
                   <Button
                     variant="outline"
@@ -640,36 +750,55 @@ export default function AllWorkoutsPage() {
             <TabsContent value="calendar" className="mt-0">
               <div className="bg-gradient-to-br from-gray-900/90 to-gray-950/95 border border-gray-800/50 rounded-xl p-5">
                 <div className="text-center mb-8">
-                  <h3 className="text-xl font-bold text-gray-100 mb-2">Calendar View</h3>
+                  <h3 className="text-xl font-bold text-gray-100 mb-2">
+                    Calendar View
+                  </h3>
                   <p className="text-gray-400">
-                    This view is coming soon! You'll be able to see your workouts organized by date.
+                    This view is coming soon! You'll be able to see your
+                    workouts organized by date.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-7 gap-1 mb-4">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day} className="text-center text-gray-400 text-sm py-2">
-                      {day}
-                    </div>
-                  ))}
+                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                    (day) => (
+                      <div
+                        key={day}
+                        className="text-center text-gray-400 text-sm py-2"
+                      >
+                        {day}
+                      </div>
+                    )
+                  )}
                 </div>
 
                 <div className="grid grid-cols-7 gap-1">
                   {Array.from({ length: 35 }).map((_, i) => {
-                    const hasWorkout = i % 7 === 2 || i % 7 === 5 || i === 15 || i === 22
-                    const isToday = i === 17
+                    const hasWorkout =
+                      i % 7 === 2 || i % 7 === 5 || i === 15 || i === 22;
+                    const isToday = i === 17;
 
                     return (
                       <div
                         key={i}
                         className={`
                           aspect-square rounded-lg border flex items-center justify-center relative
-                          ${isToday ? "border-cyan-500 bg-cyan-500/10" : "border-gray-800/50 hover:border-gray-700/70 hover:bg-gray-900/50"}
+                          ${
+                            isToday
+                              ? "border-cyan-500 bg-cyan-500/10"
+                              : "border-gray-800/50 hover:border-gray-700/70 hover:bg-gray-900/50"
+                          }
                           ${hasWorkout ? "cursor-pointer" : ""}
                           transition-colors
                         `}
                       >
-                        <span className={`text-sm ${isToday ? "font-bold text-cyan-400" : "text-gray-300"}`}>
+                        <span
+                          className={`text-sm ${
+                            isToday
+                              ? "font-bold text-cyan-400"
+                              : "text-gray-300"
+                          }`}
+                        >
                           {i + 1}
                         </span>
                         {hasWorkout && (
@@ -678,7 +807,7 @@ export default function AllWorkoutsPage() {
                           </div>
                         )}
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -694,7 +823,6 @@ export default function AllWorkoutsPage() {
             <DialogHeader>
               <DialogTitle className="text-xl font-bold flex items-center gap-2">
                 {selectedWorkout.name}
-
               </DialogTitle>
             </DialogHeader>
             <ScrollArea className="max-h-[calc(90vh-120px)]">
@@ -706,5 +834,5 @@ export default function AllWorkoutsPage() {
 
       <MobileNavigation activeTab={"workouts"} />
     </div>
-  )
+  );
 }

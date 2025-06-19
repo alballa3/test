@@ -6,13 +6,13 @@ import Workout from "./pages/workout";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import { useEffect } from "react";
-import { get_token } from "./capacitor/auth";
 import { GuestLayout } from "./components/layout/layout";
 import GenerateWorkoutPage from "./pages/page";
 import ProfilePage from "./pages/profile";
 import AllWorkoutsPage from "./pages/workouts";
 import SearchUsersPage from "./pages/search";
 import PublicProfilePage from "./pages/[id]/profile";
+import { client } from "./supabase/supabase";
 
 
 
@@ -23,8 +23,14 @@ function App() {
   useEffect(() => {
 
     const handle = async () => {
-      const token = await get_token()
-      if (!token && location.pathname !== "/auth/login" && location.pathname !== "/auth/register") {
+      const user = await client.auth.getSession()
+      const isLoggedIn = !!user.data.session
+      console.log(isLoggedIn)
+      const path = location.pathname
+      if (isLoggedIn && (path === "/auth/register" || path === "/auth/login")) {
+        nav("/")
+      }
+      if (!isLoggedIn && location.pathname !== "/auth/login" && location.pathname !== "/auth/register") {
         nav("/auth/register")
       }
 

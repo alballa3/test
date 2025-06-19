@@ -11,10 +11,8 @@ import SuccessAnimation from "./success-animation"
 import ProgressIndicator from "./progress-indicator"
 import { motion, AnimatePresence } from "framer-motion"
 import { useNavigate } from "react-router"
-import { api } from "@/api"
-import { create_token } from "@/capacitor/auth"
 import { toast, Toaster } from "sonner"
-import axios from "axios"
+import { client } from "@/supabase/supabase"
 
 // Enhanced keyframes for mobile animations
 const mobileAnimations = `
@@ -82,23 +80,21 @@ export default function RegisterForm() {
   const [step, setStep] = useState(1)
   const [userData, setUserData] = useState({
     // Physical info
-    height: "",
+    height: "190",
     heightUnit: "cm",
-    weight: "",
+    weight: "25",
     weightUnit: "kg",
 
     // Fitness profile
-    day: "",
-    month: "",
-    year: "",
-    gender: "",
-    fitnessGoal: "",
-    activityLevel: "",
+    day: "2",
+    month: "4",
+    year: "2024",
+    gender: "male",
 
     // Account info
-    name: "",
-    email: "",
-    password: "",
+    name: "mgsa",
+    email: "gakngs@gmail.com",
+    password: "mgnasngj114AC$#",
   })
   const [registrationComplete] = useState(false)
   const [autoProgressEnabled, setAutoProgressEnabled] = useState(false)
@@ -141,7 +137,7 @@ export default function RegisterForm() {
       case 2:
         return userData.height && userData.weight
       case 3:
-        return userData.day && userData.month && userData.year && userData.gender && userData.fitnessGoal && userData.activityLevel
+        return userData.day && userData.month && userData.year && userData.gender
       case 4:
         return userData.name && userData.email && userData.password && userData.password.length >= 6
       default:
@@ -213,45 +209,52 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const gymBios = [
+      "Pushing limits every day 💪",
+      "Stronger than yesterday 🔥",
+      "Fitness is a lifestyle, not a phase 🧠",
+      "Tracking progress, crushing goals 📈",
+      "No excuses, just results 🎯",
+      "Building muscle and discipline 🏗️",
+      "Gym rat with a plan 🐀",
+      "Reps. Sets. Sweat. Repeat. ♻️",
+      "On the road to greatness 🚀",
+      "Eat. Train. Sleep. Repeat 🛌",
+      "Not just lifting weights, lifting myself up 🏋️",
+      "One workout at a time ⏱️",
+      "Training like a beast 🐺",
+      "Fitness fuels my focus ⚡",
+      "Sweat now, shine later 🌟",
+      "Discipline over motivation 👊",
+      "My gym time is sacred ⛪",
+      "Tracking my grind 📓",
+      "Your body is your home. Build it strong 🧱",
+      "Dedication in every rep 🙌"
+    ]
 
-    let client = await api()
-
-    try {
-      const response = await client.post("/register", {
-        name: userData.name,
+    let response = await client.auth.signUp(
+      {
         email: userData.email,
         password: userData.password,
-        user_data: {
-          height: userData.height,
-          height_unit: userData.heightUnit,
-          weight: userData.weight,
-          weight_unit: userData.weightUnit,
-          birth_date: `${userData.day}/${userData.month}/${userData.year}`,
-          gender: userData.gender,
-          fitness_goal: userData.fitnessGoal,
-          activity_level: userData.activityLevel,
+        options: {
+          data: {
+            name: userData.name,
+            height: `${userData.height} ${userData.heightUnit}`,
+            weight: `${userData.weight} ${userData.weightUnit}`,
+            gender: userData.gender,
+            birthdate: `${userData.year}-${userData.month}-${userData.day}`,
+            bio: gymBios[Math.floor(Math.random() * gymBios.length)]
+          }
         }
-      })
-
-      console.log(response.data)
-      await create_token(response.data.token)
-      router("/")
-
-    } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          console.log('Error response:', error.response.data)
-          console.log('Error status:', error.response.status)
-          toast.error(error.response.data.message || 'Request failed!')
-        } else {
-          console.error('Error with request:', error.message)
-          toast.error('Network error!')
-        }
-      } else {
-        console.error('Unexpected error:', error)
-        toast.error('An unexpected error occurred!')
       }
+    )
+    if (response.error) {
+      toast.error(response.error.message)
+      return;
     }
+    router("/")
+    console.log(response)
+
   }
 
   const handleContinue = () => {

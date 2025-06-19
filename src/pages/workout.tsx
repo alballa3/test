@@ -13,12 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Exercise } from "@/types/exercise"
 import { useNavigate, useParams } from "react-router"
 import { WorkoutFormState } from "@/types/workout"
-import { api } from "@/api"
 import { getWorkout, storeWorkout } from "@/capacitor/store"
 import { toast, Toaster } from "sonner"
 import AICoach from "./ai-coach"
 import { motion, AnimatePresence } from "framer-motion"
 import moment from "moment"
+import { getWorkoutOnline, storeWorkoutOnline } from "@/supabase/workout"
 
 function WorkoutForm() {
     const {
@@ -37,11 +37,9 @@ function WorkoutForm() {
     useEffect(() => {
         const handle = async () => {
             setIsLoading(true)
-            console.log(id)
             try {
-                const client = await api()
-                const response = await client.get(`/template/${id}`)
-                const data: WorkoutFormState = response.data[0]
+                const data = await getWorkoutOnline(id as string) as unknown as WorkoutFormState
+                
                 data.is_template = false;
                 data.exercises.map((execures) => {
                     execures.previousData = {
@@ -133,8 +131,8 @@ function WorkoutForm() {
             async () => {
                 console.log(state)
                 try {
-                    const client = await api()
-                    await client.post("/workouts", state)
+                    await storeWorkoutOnline(state, false)
+
                 } catch (error) {
                     toast.error("Failed to save workout it will be stored locally")
                     console.error(error)
