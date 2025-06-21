@@ -48,7 +48,7 @@ export function MobileNavigation({ activeTab: propActiveTab }: MobileNavigationP
                         isActive={activeTab === "workouts"}
                         onClick={() => setActiveTab("workouts")}
                     />
-                    <NavItem
+                    {/* <NavItem
                         icon={<User />}
                         label="Users"
                         to="/users"
@@ -61,7 +61,7 @@ export function MobileNavigation({ activeTab: propActiveTab }: MobileNavigationP
                         to="/profile"
                         isActive={activeTab === "profile"}
                         onClick={() => setActiveTab("profile")}
-                    />
+                    /> */}
                 </div>
             </nav>
         </div>

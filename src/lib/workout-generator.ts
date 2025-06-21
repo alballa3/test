@@ -1,4 +1,3 @@
-import { api } from "@/api";
 import { client } from "@/supabase/supabase";
 import type { Equipment, MuscleGroup, Set } from "@/types/workout";
 type exercises = {
@@ -92,7 +91,7 @@ Return only valid JSON without additional text or formatting. Ensure all exercis
       }),
     }
   );
-  let workout_plan = response as WorkoutPlan;
+  let workout_plan = response as unknown as WorkoutPlan;
   let total_set = workout_plan.exercises.map((exercise) => {
     let sets_number = exercise.sets as number;
     let sets = [];

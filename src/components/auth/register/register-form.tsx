@@ -80,21 +80,21 @@ export default function RegisterForm() {
   const [step, setStep] = useState(1)
   const [userData, setUserData] = useState({
     // Physical info
-    height: "190",
-    heightUnit: "cm",
-    weight: "25",
-    weightUnit: "kg",
+    height: "",
+    heightUnit: "",
+    weight: "",
+    weightUnit: "",
 
     // Fitness profile
-    day: "2",
-    month: "4",
-    year: "2024",
-    gender: "male",
+    day: "",
+    month: "",
+    year: "",
+    gender: "",
 
     // Account info
-    name: "mgsa",
-    email: "gakngs@gmail.com",
-    password: "mgnasngj114AC$#",
+    name: "",
+    email: "",
+    password: "",
   })
   const [registrationComplete] = useState(false)
   const [autoProgressEnabled, setAutoProgressEnabled] = useState(false)

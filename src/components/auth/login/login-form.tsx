@@ -1,15 +1,17 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Link, useNavigate } from "react-router"
-import { api } from "@/api"
-import { create_token } from "@/capacitor/auth"
-import { AxiosError } from "axios"
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router";
+import { api } from "@/api";
+import { create_token } from "@/capacitor/auth";
+import { AxiosError } from "axios";
+import { client } from "@/supabase/supabase";
+import { toast } from "sonner";
 // Add keyframes for animations
 const animations = `
 @keyframes float {
@@ -46,67 +48,71 @@ const animations = `
     background-position: 200% 0;
   }
 }
-`
+`;
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [focusedField, setFocusedField] = useState<string | null>(null)
-  const [activeField, setActiveField] = useState<string | null>(null)
-  const router = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [activeField, setActiveField] = useState<string | null>(null);
+  const router = useNavigate();
 
   // Add subtle background animation
-  const [rotation, setRotation] = useState(0)
+  const [rotation, setRotation] = useState(0);
 
   // Track mouse position for hover effects
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotation((prev) => (prev + 0.2) % 360)
-    }, 50)
-    return () => clearInterval(interval)
-  }, [])
+      setRotation((prev) => (prev + 0.2) % 360);
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
 
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [])
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      setIsLoading(true)
-      const client = await api()
-      const reponse = await client.post("/login", { password, email })
-      console.log(reponse.data)
-      await create_token(reponse.data.token)
-      router("/")
+      setIsLoading(true);
+      const reponse = await client.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+      if (reponse.error) {
+        setError(reponse.error.message);
+        return;
+      }
+      router("/");
     } catch (err) {
-      console.log(err)
+      console.log(err);
       if (err instanceof AxiosError) {
         if (err.response) {
-          console.log("Error response:", err.response.data)
-          console.log("Error status:", err.response.status)
-          setError(err.response.data.message || "Request failed!")
+          console.log("Error response:", err.response.data);
+          console.log("Error status:", err.response.status);
+          setError(err.response.data.message || "Request failed!");
         }
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="relative">
@@ -142,12 +148,21 @@ export default function LoginForm() {
                 <motion.div
                   className="absolute -inset-3 sm:-inset-4 rounded-full bg-blue-500/10"
                   animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ repeat: Number.POSITIVE_INFINITY, duration: 3, ease: "easeInOut" }}
+                  transition={{
+                    repeat: Number.POSITIVE_INFINITY,
+                    duration: 3,
+                    ease: "easeInOut",
+                  }}
                 />
                 <motion.div
                   className="absolute -inset-6 sm:-inset-8 rounded-full bg-blue-500/5"
                   animate={{ scale: [1.1, 1, 1.1] }}
-                  transition={{ repeat: Number.POSITIVE_INFINITY, duration: 3, ease: "easeInOut", delay: 0.5 }}
+                  transition={{
+                    repeat: Number.POSITIVE_INFINITY,
+                    duration: 3,
+                    ease: "easeInOut",
+                    delay: 0.5,
+                  }}
                 />
 
                 {/* Icon container */}
@@ -160,7 +175,9 @@ export default function LoginForm() {
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 bg-clip-text bg-gradient-to-r from-white to-blue-200">
               Welcome Back
             </h1>
-            <p className="text-sm text-gray-300">Sign in to continue to FitTrack Pro</p>
+            <p className="text-sm text-gray-300">
+              Sign in to continue to FitTrack Pro
+            </p>
           </motion.div>
 
           <AnimatePresence>
@@ -197,8 +214,11 @@ export default function LoginForm() {
           >
             {/* Email Field - Modern Floating Label */}
             <motion.div
-              className={`relative bg-gray-800/50 backdrop-blur-sm p-4 sm:p-5 rounded-xl border transition-all duration-300 group overflow-hidden ${focusedField === "email" ? "border-blue-500/50 shadow-lg shadow-blue-500/10" : "border-blue-500/20"
-                }`}
+              className={`relative bg-gray-800/50 backdrop-blur-sm p-4 sm:p-5 rounded-xl border transition-all duration-300 group overflow-hidden ${
+                focusedField === "email"
+                  ? "border-blue-500/50 shadow-lg shadow-blue-500/10"
+                  : "border-blue-500/20"
+              }`}
               whileTap={{ scale: 0.99 }}
               onMouseEnter={() => setActiveField("email")}
               onMouseLeave={() => setActiveField(null)}
@@ -228,10 +248,11 @@ export default function LoginForm() {
                   <div className="flex-1 relative">
                     <label
                       htmlFor="email"
-                      className={`absolute text-gray-400 transition-all duration-300 ${email || focusedField === "email"
-                        ? "text-xs -translate-y-5 text-blue-400"
-                        : "text-base translate-y-0"
-                        }`}
+                      className={`absolute text-gray-400 transition-all duration-300 ${
+                        email || focusedField === "email"
+                          ? "text-xs -translate-y-5 text-blue-400"
+                          : "text-base translate-y-0"
+                      }`}
                     >
                       Email Address
                     </label>
@@ -254,8 +275,11 @@ export default function LoginForm() {
 
             {/* Password Field - Modern Floating Label */}
             <motion.div
-              className={`relative bg-gray-800/50 backdrop-blur-sm p-4 sm:p-5 rounded-xl border transition-all duration-300 group overflow-hidden ${focusedField === "password" ? "border-blue-500/50 shadow-lg shadow-blue-500/10" : "border-blue-500/20"
-                }`}
+              className={`relative bg-gray-800/50 backdrop-blur-sm p-4 sm:p-5 rounded-xl border transition-all duration-300 group overflow-hidden ${
+                focusedField === "password"
+                  ? "border-blue-500/50 shadow-lg shadow-blue-500/10"
+                  : "border-blue-500/20"
+              }`}
               whileTap={{ scale: 0.99 }}
               onMouseEnter={() => setActiveField("password")}
               onMouseLeave={() => setActiveField(null)}
@@ -285,10 +309,11 @@ export default function LoginForm() {
                   <div className="flex-1 relative">
                     <label
                       htmlFor="password"
-                      className={`absolute text-gray-400 transition-all duration-300 ${password || focusedField === "password"
-                        ? "text-xs -translate-y-5 text-blue-400"
-                        : "text-base translate-y-0"
-                        }`}
+                      className={`absolute text-gray-400 transition-all duration-300 ${
+                        password || focusedField === "password"
+                          ? "text-xs -translate-y-5 text-blue-400"
+                          : "text-base translate-y-0"
+                      }`}
                     >
                       Password
                     </label>
@@ -308,7 +333,11 @@ export default function LoginForm() {
                         onClick={togglePasswordVisibility}
                         className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1"
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -316,7 +345,6 @@ export default function LoginForm() {
                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500/50 to-blue-300/50 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </div>
             </motion.div>
-
 
             {/* Login Button */}
             <motion.div whileHover={{ y: -2 }} whileTap={{ y: 0 }}>
@@ -372,7 +400,9 @@ export default function LoginForm() {
                 <div className="w-full border-t border-gray-700"></div>
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="px-2 bg-gray-900 text-gray-400">Or continue with</span>
+                <span className="px-2 bg-gray-900 text-gray-400">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -392,5 +422,5 @@ export default function LoginForm() {
         </div>
       </div>
     </div>
-  )
+  );
 }
