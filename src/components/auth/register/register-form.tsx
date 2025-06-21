@@ -81,9 +81,9 @@ export default function RegisterForm() {
   const [userData, setUserData] = useState({
     // Physical info
     height: "",
-    heightUnit: "",
+    heightUnit: "cm",
     weight: "",
-    weightUnit: "",
+    weightUnit: "kg",
 
     // Fitness profile
     day: "",
@@ -192,13 +192,13 @@ export default function RegisterForm() {
     if (Math.abs(diff) > 50) {
       setSwipeLocked(true)
 
-      if (diff > 0 && step < 4) {
-        setSwipeDirection("left")
-        nextStep()
-      } else if (diff < 0 && step > 1) {
-        setSwipeDirection("right")
-        prevStep()
-      }
+      // if (diff > 0 && step < 4) {
+      //   setSwipeDirection("left")
+      //   nextStep()
+      // } else if (diff < 0 && step > 1) {
+      //   setSwipeDirection("right")
+      //   prevStep()
+      // }
 
       setTimeout(() => {
         setSwipeDirection(null)
