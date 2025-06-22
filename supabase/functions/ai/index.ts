@@ -6,14 +6,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import "https://deno.land/std@0.224.0/dotenv/load.ts";
 
-console.log("Hello from Functions!");
-
 Deno.serve(async (req) => {
-  const { prompt } = await req.json();
+  const { prompt } = await req.text();
+  console.log(prompt)
   const token = Deno.env.get("AI_KEY_TOKEN");
   if (!token) {
-    console.log(token)
-      console.log("THE TOKEN IS NOT SET")
+    console.log(token);
+    console.log("THE TOKEN IS NOT SET");
   }
   const response = await fetch(
     "https://api.groq.com/openai/v1/chat/completions",
@@ -29,6 +28,21 @@ Deno.serve(async (req) => {
       }),
     }
   );
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("AI API Error:", response.status, errorText);
+    return new Response(
+      JSON.stringify({
+        error: true,
+        status: response.status,
+        message: errorText,
+      }),
+      {
+        status: response.status,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
   const data = await response.json();
   return new Response(JSON.stringify(data), {
     headers: { "Content-Type": "application/json" },

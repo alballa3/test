@@ -39,7 +39,9 @@ function WorkoutForm() {
             setIsLoading(true)
             try {
                 const data = await getWorkoutOnline(id as string) as unknown as WorkoutFormState
-                
+                if (! data) {
+                    throw Error("THERE IS NO ONLINE DATA")
+                }
                 data.is_template = false;
                 data.exercises.map((execures) => {
                     execures.previousData = {

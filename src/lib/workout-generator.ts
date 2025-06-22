@@ -28,22 +28,24 @@ export const generateWorkoutBasedOnInputs = async (
   selectedEquipment: Equipment[],
   selectedMuscleGroups: MuscleGroup[]
 ) => {
-  const user=(await client.auth.getSession()).data.session?.user
-  const promt = `
+  const user = (await client.auth.getSession()).data.session?.user;
+  console.log(user);
+  const prompt = `
   You are an elite fitness coach and certified personal trainer with extensive experience in creating customized workout programs. Design a safe, effective, and personalized workout routine optimized for the following parameters.
 
 User Profile:
 - Height: ${user?.user_metadata?.height}
 - Weight: ${user?.user_metadata?.weight}
-- Age: $birthDate (Note: Prioritize age-appropriate exercises and proper form)
-- Gender: $gender
-- Fitness Goal: $fitnessGoal
-- Activity Level: $activityLevel
+- Age: ${
+    new Date().getFullYear() -
+    new Date(user?.user_metadata?.birthdate).getFullYear()
+  }
+- Gender: ${user?.user_metadata?.gender}
 
 Workout Specifications:
-- Available Equipment: {$validation['equipment']}
-- Target Muscle Groups: {$muscleGroups}
-- Special Instructions: {$specialInstructions}
+- Available Equipment ${selectedEquipment}
+- Target Muscle Groups: ${selectedMuscleGroups}
+- Special Instructions: ${description}
 
 Critical Requirements:
 1. Design age-appropriate exercises with proper progression
@@ -76,7 +78,7 @@ Provide a structured workout plan in this exact JSON format:
 }
 
 Return only valid JSON without additional text or formatting. Ensure all exercises are appropriate for a teenage athlete, focusing on foundational movements and proper progression.`;
-
+  console.log(prompt);
   const response = await fetch(
     `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai`,
     {
@@ -85,13 +87,13 @@ Return only valid JSON without additional text or formatting. Ensure all exercis
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        equipment: selectedEquipment.join(","),
-        muscleGroups: selectedMuscleGroups,
-        instruction: description,
+        prompt: prompt,
       }),
     }
   );
-  let workout_plan = response as unknown as WorkoutPlan;
+
+  let workout_plan = (await response.json()) as unknown as WorkoutPlan;
+  console.log(workout_plan);
   let total_set = workout_plan.exercises.map((exercise) => {
     let sets_number = exercise.sets as number;
     let sets = [];
