@@ -1,71 +1,71 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Camera, Check, Edit, X, LogOut, Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Profile, User } from "@/types/user"
-import { api } from "@/api"
-import { useNavigate } from "react-router"
-import { delete_token, get_token } from "@/capacitor/auth"
-import { getAll } from "@/capacitor/store"
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Camera, Check, Edit, X, LogOut, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Profile, User } from "@/types/user";
+import { api } from "@/api";
+import { useNavigate } from "react-router";
+import { client } from "@/supabase/supabase";
+import { toast, Toaster } from "sonner";
 
-export default function ProfileHeader({ user, setUser }: { user: Profile, setUser: (user: User) => void }) {
-  const [isEditing, setIsEditing] = useState(false)
-  let router = useNavigate()
-  const [tempUsername, setTempUsername] = useState(user.user.name)
-  const [isUploading, setIsUploading] = useState(false)
-  const [showShareTooltip, setShowShareTooltip] = useState(false)
-  const handlechange = async () => {
-    const token = await get_token()
-    console.log(token)
-    const get_workouts = await getAll()
-    console.log(get_workouts)
-    const client = await api()
-    const response = await client.post("/workouts/all", get_workouts)
-    console.log(response)
-  }
+export default function ProfileHeader({
+  user,
+  setUser,
+}: {
+  user: Profile;
+  setUser: (user: User) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  let router = useNavigate();
+  const [tempUsername, setTempUsername] = useState(user.user.name);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
   const handleSave = async () => {
     try {
-      const client = await api()
+      const client = await api();
       await client.put("/profile/name", {
         name: tempUsername,
-      })
-      setUser({ ...user.user, name: tempUsername })
-      setIsEditing(false)
+      });
+      setUser({ ...user.user, name: tempUsername });
+      setIsEditing(false);
     } catch (error) {
-      console.error("Failed to update username:", error)
+      console.error("Failed to update username:", error);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setTempUsername(user.user.name)
-    setIsEditing(false)
-  }
+    setTempUsername(user.user.name);
+    setIsEditing(false);
+  };
 
   const simulateUpload = () => {
-    setIsUploading(true)
-    setTimeout(() => setIsUploading(false), 1500)
-  }
+    setIsUploading(true);
+    setTimeout(() => setIsUploading(false), 1500);
+  };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/profile/${user.user.id}`)
-    setShowShareTooltip(true)
-    setTimeout(() => setShowShareTooltip(false), 2000)
-  }
+    navigator.clipboard.writeText(
+      `${window.location.origin}/profile/${user.user.id}`
+    );
+    setShowShareTooltip(true);
+    setTimeout(() => setShowShareTooltip(false), 2000);
+  };
 
   const handleLogout = async () => {
     try {
-      const client = await api()
-      await client.post("/logout")
-      await delete_token()
-      router("/auth/login")
+      const reponse = await client.auth.signOut();
+      if (reponse.error) {
+        toast.error(reponse.error.message);
+        return;
+      }
+      router("/auth/login");
     } catch (error) {
-      console.error("Failed to logout:", error)
+      console.error("Failed to logout:", error);
     }
-  }
+  };
 
   // Animation variants
   const containerVariants = {
@@ -75,11 +75,10 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
       y: 0,
       transition: {
         duration: 0.5,
-        staggerChildren: 0.1
-      }
-    }
-  }
-
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
   return (
     <motion.section
@@ -88,6 +87,7 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
       animate="visible"
       className="relative rounded-xl overflow-hidden shadow-2xl"
     >
+      <Toaster />
       {/* Cover Photo with modern gradient */}
       <div className="h-56 md:h-64 relative">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800" />
@@ -97,7 +97,13 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
         <div className="absolute inset-0 opacity-60">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="meshGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient
+                id="meshGradient"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
                 <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.4" />
                 <stop offset="50%" stopColor="#7C3AED" stopOpacity="0.2" />
                 <stop offset="100%" stopColor="#2563EB" stopOpacity="0.4" />
@@ -117,13 +123,25 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
                 x: Math.random() * 100 + "%",
                 y: Math.random() * 100 + "%",
                 opacity: Math.random() * 0.5 + 0.3,
-                scale: Math.random() * 0.5 + 0.5
+                scale: Math.random() * 0.5 + 0.5,
               }}
               animate={{
-                x: [Math.random() * 100 + "%", Math.random() * 100 + "%", Math.random() * 100 + "%"],
-                y: [Math.random() * 100 + "%", Math.random() * 100 + "%", Math.random() * 100 + "%"],
-                opacity: [Math.random() * 0.3 + 0.2, Math.random() * 0.5 + 0.5, Math.random() * 0.3 + 0.2],
-                scale: [0.5, Math.random() * 0.5 + 0.7, 0.5]
+                x: [
+                  Math.random() * 100 + "%",
+                  Math.random() * 100 + "%",
+                  Math.random() * 100 + "%",
+                ],
+                y: [
+                  Math.random() * 100 + "%",
+                  Math.random() * 100 + "%",
+                  Math.random() * 100 + "%",
+                ],
+                opacity: [
+                  Math.random() * 0.3 + 0.2,
+                  Math.random() * 0.5 + 0.5,
+                  Math.random() * 0.3 + 0.2,
+                ],
+                scale: [0.5, Math.random() * 0.5 + 0.7, 0.5],
               }}
               transition={{
                 duration: Math.random() * 10 + 20,
@@ -177,7 +195,10 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
               transition={{ type: "spring", stiffness: 300, damping: 15 }}
             >
               <Avatar className="h-32 w-32 border-4 border-zinc-900 ring-2 ring-blue-500/50 shadow-xl shadow-blue-500/20">
-                <AvatarImage src="/placeholder.svg?height=128&width=128" alt={user.user.name} />
+                <AvatarImage
+                  src="/placeholder.svg?height=128&width=128"
+                  alt={user.user.name}
+                />
                 <AvatarFallback className="text-4xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white">
                   {user.user.name[0].toUpperCase()}
                 </AvatarFallback>
@@ -247,7 +268,9 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
                   exit={{ opacity: 0, y: -10 }}
                   className="flex items-center gap-2"
                 >
-                  <h1 className="text-xl sm:text-2xl font-bold text-white break-all">{user.user.name}</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold text-white break-all">
+                    {user.user.name}
+                  </h1>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -260,14 +283,11 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="flex flex-wrap gap-2" onClick={handlechange}>
-              <Badge className="bg-gradient-to-r from-blue-600 to-blue-400 text-white border-none px-2 py-0.5 sm:px-3 sm:py-1 text-sm shadow-lg shadow-blue-500/20">
-                Transform data in the backend
-              </Badge>
-
-            </div>
+           
           </div>
-          <p className="text-zinc-300 text-sm md:text-base">{user.bio || "No bio yet. Click edit to add one."}</p>
+          <p className="text-zinc-300 text-sm md:text-base">
+            {user.bio || "No bio yet. Click edit to add one."}
+          </p>
 
           {/* Stats with improved animations */}
           <div className="flex flex-wrap gap-4 mt-4">
@@ -279,28 +299,27 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
               <p className="text-sm text-zinc-400">Workouts</p>
               <p className="font-semibold text-white">{user.workout || 0}</p>
             </motion.div>
-            <motion.div
+            {/* <motion.div
               whileHover={{ y: -5, scale: 1.03 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-zinc-700/50 shadow-lg shadow-black/20 flex-1 min-w-24"
             >
               <p className="text-sm text-zinc-400">Following</p>
               <p className="font-semibold text-white">{user.following || 0}</p>
-            </motion.div>
-            <motion.div
+            </motion.div> */}
+            {/* <motion.div
               whileHover={{ y: -5, scale: 1.03 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-lg border border-zinc-700/50 shadow-lg shadow-black/20 flex-1 min-w-24"
             >
               <p className="text-sm text-zinc-400">Followers</p>
               <p className="font-semibold text-white">{user.followers || user.following || 0}</p>
-            </motion.div>
+            </motion.div> */}
           </div>
         </div>
 
         {/* Action buttons */}
         <div className="absolute top-4 right-4 md:static md:flex md:flex-col md:gap-2 md:self-start">
-
           <Button
             variant="ghost"
             size="icon"
@@ -313,5 +332,5 @@ export default function ProfileHeader({ user, setUser }: { user: Profile, setUse
         </div>
       </div>
     </motion.section>
-  )
+  );
 }

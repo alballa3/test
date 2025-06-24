@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { Dumbbell, Heart, LineChart, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Link } from "react-router"
 interface StepOneProps {
   onNext: () => void
 }
@@ -47,7 +48,11 @@ export default function StepOne({ onNext }: StepOneProps) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center flex flex-col h-full">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-center flex flex-col h-full"
+    >
       <div className="mb-4 sm:mb-6">
         <motion.div
           initial={{ y: -30, opacity: 0 }}
@@ -60,12 +65,21 @@ export default function StepOne({ onNext }: StepOneProps) {
             <motion.div
               className="absolute -inset-3 sm:-inset-4 rounded-full bg-blue-500/10"
               animate={{ scale: [1, 1.1, 1] }}
-              transition={{ repeat: Number.POSITIVE_INFINITY, duration: 3, ease: "easeInOut" }}
+              transition={{
+                repeat: Number.POSITIVE_INFINITY,
+                duration: 3,
+                ease: "easeInOut",
+              }}
             />
             <motion.div
               className="absolute -inset-6 sm:-inset-8 rounded-full bg-blue-500/5"
               animate={{ scale: [1.1, 1, 1.1] }}
-              transition={{ repeat: Number.POSITIVE_INFINITY, duration: 3, ease: "easeInOut", delay: 0.5 }}
+              transition={{
+                repeat: Number.POSITIVE_INFINITY,
+                duration: 3,
+                ease: "easeInOut",
+                delay: 0.5,
+              }}
             />
 
             {/* Icon container */}
@@ -99,9 +113,7 @@ export default function StepOne({ onNext }: StepOneProps) {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-      >
-
-      </motion.div>
+      ></motion.div>
 
       <motion.div
         className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6 flex-1"
@@ -127,8 +139,12 @@ export default function StepOne({ onNext }: StepOneProps) {
                   {feature.icon}
                 </motion.div>
               </div>
-              <h3 className="text-xs sm:text-sm font-medium text-white mb-1">{feature.title}</h3>
-              <p className="text-[10px] sm:text-xs text-gray-300">{feature.description}</p>
+              <h3 className="text-xs sm:text-sm font-medium text-white mb-1">
+                {feature.title}
+              </h3>
+              <p className="text-[10px] sm:text-xs text-gray-300">
+                {feature.description}
+              </p>
             </div>
           </motion.div>
         ))}
@@ -138,7 +154,7 @@ export default function StepOne({ onNext }: StepOneProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="mt-auto"
+        className="mt-auto space-y-3"
       >
         <Button
           onClick={onNext}
@@ -146,18 +162,22 @@ export default function StepOne({ onNext }: StepOneProps) {
         >
           <span className="relative z-10 flex items-center justify-center gap-2">
             Get Started
-            <motion.svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="16" 
-              height="16" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
+            <motion.svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
               strokeWidth="2"
-              strokeLinecap="round" 
+              strokeLinecap="round"
               strokeLinejoin="round"
               animate={{ x: [0, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: "easeInOut",
+              }}
             >
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -180,7 +200,22 @@ export default function StepOne({ onNext }: StepOneProps) {
             <span className="absolute top-0 left-0 w-1/4 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-30 translate-x-[-150%] group-hover:translate-x-[200%] transition-transform duration-1000"></span>
           </span>
         </Button>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0 }}
+        >
+          <Button
+            variant="outline"
+            className="w-full border-blue-500/20 text-blue-300 hover:bg-blue-900/20 hover:border-blue-500/40 py-2 sm:py-2.5 transition-all duration-300"
+          >
+            <Link className="flex items-center justify-center gap-1" to={"/auth/login"}>
+              Already have an account? Login
+            </Link>
+          </Button>
+        </motion.div>
       </motion.div>
     </motion.div>
-  )
+  );
 }

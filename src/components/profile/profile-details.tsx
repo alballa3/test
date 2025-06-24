@@ -1,27 +1,35 @@
-"use client"
+"use client";
 
-
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Edit, Save, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Profile, User } from "@/types/user"
-import { api } from "@/api"
-export default function ProfileDetails({ user, setUser, setProfile, profile }: { user: User, setUser: (user: User) => void, setProfile: (profile: Profile) => void, profile: Profile }) {
-  const [isEditing, setIsEditing] = useState(false)
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Edit, Save, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Profile, User } from "@/types/user";
+import { api } from "@/api";
+export default function ProfileDetails({
+  user,
+  setUser,
+  setProfile,
+  profile,
+}: {
+  user: User;
+  setUser: (user: User) => void;
+  setProfile: (profile: Profile) => void;
+  profile: Profile;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleSubmit = async () => {
-    setIsEditing(false)
-    const client = await api()
+    setIsEditing(false);
+    const client = await api();
     const res = await client.put("/profile/bio", {
       bio: profile.bio,
-    })
-    console.log(res)
-  }
-
+    });
+    console.log(res);
+  };
 
   return (
     <motion.section
@@ -91,7 +99,12 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
             </Label>
             <AnimatePresence mode="wait">
               {isEditing ? (
-                <motion.div key="editing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  key="editing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <Input
                     id="firstName"
                     name="firstName"
@@ -115,22 +128,27 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
             </AnimatePresence>
           </div>
 
-
-
           <div className="space-y-2">
             <Label htmlFor="email" className="text-zinc-400">
               Email
             </Label>
             <AnimatePresence mode="wait">
               {isEditing ? (
-                <motion.div key="editing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  key="editing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     disabled={true}
                     value={user.email}
-                    onChange={(e) => setUser({ ...user, email: e.target.value })}
+                    onChange={(e) =>
+                      setUser({ ...user, email: e.target.value })
+                    }
                     className="bg-zinc-800/70 border-zinc-700/50 text-white focus:border-blue-500 focus:ring-blue-500/20 rounded-lg"
                   />
                 </motion.div>
@@ -154,14 +172,27 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
             </Label>
             <AnimatePresence mode="wait">
               {isEditing ? (
-                <motion.div key="editing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  key="editing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <Input
                     id="dateOfBirth"
                     name="dateOfBirth"
                     type="date"
                     disabled={true}
                     value={user.user_data.birth_date}
-                    onChange={(e) => setUser({ ...user, user_data: { ...user.user_data, birth_date: e.target.value } })}
+                    onChange={(e) =>
+                      setUser({
+                        ...user,
+                        user_data: {
+                          ...user.user_data,
+                          birth_date: e.target.value,
+                        },
+                      })
+                    }
                     className="bg-zinc-800/70 border-zinc-700/50 text-white focus:border-blue-500 focus:ring-blue-500/20 rounded-lg"
                   />
                 </motion.div>
@@ -173,7 +204,7 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
                   exit={{ opacity: 0 }}
                   className="text-sm py-2 text-white bg-zinc-800/30 rounded-lg px-3 border border-zinc-700/30"
                 >
-                  {(user.user_data.birth_date)}
+                  {user.user_data.birth_date}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -198,18 +229,31 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
 
           <div className="space-y-2">
             <Label htmlFor="height" className="text-zinc-400">
-              Height {user.user_data.height_unit}
+              Height
             </Label>
             <AnimatePresence mode="wait">
               {isEditing ? (
-                <motion.div key="editing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  key="editing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <Input
                     id="height"
                     name="height"
                     type="number"
                     disabled={true}
                     value={user.user_data.height}
-                    onChange={(e) => setUser({ ...user, user_data: { ...user.user_data, height: e.target.value } })}
+                    onChange={(e) =>
+                      setUser({
+                        ...user,
+                        user_data: {
+                          ...user.user_data,
+                          height: e.target.value,
+                        },
+                      })
+                    }
                     className="bg-zinc-800/70 border-zinc-700/50 text-white focus:border-blue-500 focus:ring-blue-500/20 rounded-lg"
                   />
                 </motion.div>
@@ -219,10 +263,9 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-
                   className="text-sm py-2 text-white bg-zinc-800/30 rounded-lg px-3 border border-zinc-700/30"
                 >
-                  {user.user_data.height} {user.user_data.height_unit}
+                  {user.user_data.height}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -230,18 +273,31 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
 
           <div className="space-y-2">
             <Label htmlFor="weight" className="text-zinc-400">
-              Weight {user.user_data.weight_unit}
+              Weight
             </Label>
             <AnimatePresence mode="wait">
               {isEditing ? (
-                <motion.div key="editing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  key="editing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <Input
                     id="weight"
                     name="weight"
                     type="number"
                     disabled={true}
                     value={user.user_data.weight}
-                    onChange={(e) => setUser({ ...user, user_data: { ...user.user_data, weight: e.target.value } })}
+                    onChange={(e) =>
+                      setUser({
+                        ...user,
+                        user_data: {
+                          ...user.user_data,
+                          weight: e.target.value,
+                        },
+                      })
+                    }
                     className="bg-zinc-800/70 border-zinc-700/50 text-white focus:border-blue-500 focus:ring-blue-500/20 rounded-lg"
                   />
                 </motion.div>
@@ -253,7 +309,7 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
                   exit={{ opacity: 0 }}
                   className="text-sm py-2 text-white bg-zinc-800/30 rounded-lg px-3 border border-zinc-700/30"
                 >
-                  {user.user_data.weight} {user.user_data.weight_unit}
+                  {user.user_data.weight}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -266,12 +322,19 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
           </Label>
           <AnimatePresence mode="wait">
             {isEditing ? (
-              <motion.div key="editing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <motion.div
+                key="editing"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
                 <Textarea
                   id="bio"
                   name="bio"
                   value={profile.bio}
-                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                  onChange={(e) =>
+                    setProfile({ ...profile, bio: e.target.value })
+                  }
                   rows={4}
                   className="bg-zinc-800/70 border-zinc-700/50 text-white focus:border-blue-500 focus:ring-blue-500/20 rounded-lg"
                 />
@@ -302,8 +365,7 @@ export default function ProfileDetails({ user, setUser, setProfile, profile }: {
             Public Profile
           </Label>
         </div> */}
-
       </div>
     </motion.section>
-  )
+  );
 }

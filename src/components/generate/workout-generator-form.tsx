@@ -29,7 +29,7 @@ export function WorkoutGeneratorForm({
   onContinue,
 }: WorkoutGeneratorFormProps) {
   const [duration, setDuration] = useState(45)
-  const [description, setDescription] = useState("")
+  const [description, setDescription] = useState("I WANT AN SIMPLE WORKOUT THAT WOULD LOOK COOL")
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment[]>([])
   const [selectedMuscleGroups, setSelectedMuscleGroups] = useState<MuscleGroup[]>([])
   const [customEquipment, setCustomEquipment] = useState("")

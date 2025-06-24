@@ -79,45 +79,36 @@ Provide a structured workout plan in this exact JSON format:
 
 Return only valid JSON without additional text or formatting. Ensure all exercises are appropriate for a teenage athlete, focusing on foundational movements and proper progression.`;
   console.log(prompt);
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: prompt,
-      }),
-    }
-  );
-
-  let workout_plan = (await response.json()) as unknown as WorkoutPlan;
-  console.log(workout_plan);
-  let total_set = workout_plan.exercises.map((exercise) => {
-    let sets_number = exercise.sets as number;
-    let sets = [];
-    exercise["isExpanded"] = true;
-    for (let i = 0; i < sets_number; i++) {
-      sets.push({
-        id: i,
-        weight: 1,
-        reps: 0,
-      });
-    }
-    exercise.sets = sets;
-    return exercise;
-  });
-  let data = {
-    id: crypto.randomUUID(),
-    name: workout_plan.name,
-    description: workout_plan.description,
-    exercises: total_set,
-    duration: workout_plan.duration,
-    intensity: workout_plan.intensity,
-    caloriesBurned: workout_plan.caloriesBurned,
-    is_template: true,
-  };
-  console.log(data);
-  return data;
+  const reponse =await client.functions.invoke("ai", {
+    body: {prompt:"PRINT HELLO WORLD"}
+  })
+  console.log(reponse)
+  // let workout_plan = (await response.json()) as unknown as WorkoutPlan;
+  // console.log(workout_plan);
+  // let total_set = workout_plan.exercises.map((exercise) => {
+  //   let sets_number = exercise.sets as number;
+  //   let sets = [];
+  //   exercise["isExpanded"] = true;
+  //   for (let i = 0; i < sets_number; i++) {
+  //     sets.push({
+  //       id: i,
+  //       weight: 1,
+  //       reps: 0,
+  //     });
+  //   }
+  //   exercise.sets = sets;
+  //   return exercise;
+  // });
+  // let data = {
+  //   id: crypto.randomUUID(),
+  //   name: workout_plan.name,
+  //   description: workout_plan.description,
+  //   exercises: total_set,
+  //   duration: workout_plan.duration,
+  //   intensity: workout_plan.intensity,
+  //   caloriesBurned: workout_plan.caloriesBurned,
+  //   is_template: true,
+  // };
+  // console.log(data);
+  // return data;
 };

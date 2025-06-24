@@ -27,45 +27,46 @@ export function MobileNavigation({ activeTab: propActiveTab }: MobileNavigationP
     }
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-10">
-            {/* Backdrop blur effect */}
-            <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-lg border-t border-gray-800/50" />
+      <div className="fixed bottom-0 left-0 right-0 z-10">
+        {/* Backdrop blur effect */}
+        <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-lg border-t border-gray-800/50" />
 
-            {/* Actual navigation */}
-            <nav className="relative px-6 py-3">
-                <div className="flex items-center justify-around">
-                    <NavItem
-                        icon={<Home />}
-                        label="Home"
-                        to="/"
-                        isActive={activeTab === "home"}
-                        onClick={() => setActiveTab("home")}
-                    />
-                    <NavItem
-                        icon={<Dumbbell />}
-                        label="Workouts"
-                        to="/workouts"
-                        isActive={activeTab === "workouts"}
-                        onClick={() => setActiveTab("workouts")}
-                    />
-                    {/* <NavItem
+        {/* Actual navigation */}
+        <nav className="relative px-6 py-3">
+          <div className="flex items-center justify-around">
+            <NavItem
+              icon={<Home />}
+              label="Home"
+              to="/"
+              isActive={activeTab === "home"}
+              onClick={() => setActiveTab("home")}
+            />
+            <NavItem
+              icon={<Dumbbell />}
+              label="Workouts"
+              to="/workouts"
+              isActive={activeTab === "workouts"}
+              onClick={() => setActiveTab("workouts")}
+            />
+            {/* <NavItem
                         icon={<User />}
                         label="Users"
                         to="/users"
                         isActive={activeTab === "users"}
                         onClick={() => setActiveTab("users")}
                     />
-                    <NavItem
-                        icon={<Settings2 />}
-                        label="Profile"
-                        to="/profile"
-                        isActive={activeTab === "profile"}
-                        onClick={() => setActiveTab("profile")}
-                    /> */}
-                </div>
-            </nav>
-        </div>
-    )
+                     */}
+            <NavItem
+              icon={<Settings2 />}
+              label="Profile"
+              to="/profile"
+              isActive={activeTab === "profile"}
+              onClick={() => setActiveTab("profile")}
+            />
+          </div>
+        </nav>
+      </div>
+    );
 }
 
 interface NavItemProps {

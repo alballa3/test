@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'gymrat.com',
-  appName: 'gym',
+  appName: 'Mygymbro tracker',
   webDir: 'dist',
   plugins: {
     SplashScreen: {
